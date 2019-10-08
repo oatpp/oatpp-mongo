@@ -40,7 +40,7 @@ std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<D
 }
 
 
-oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(bsoncxx::document::view &document,
+oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(const bsoncxx::document::view &document,
                                                                      const oatpp::data::mapping::type::Type* const type) const {
   return MongoToDto::deserialize(document, deserializerConfig, type);
 }

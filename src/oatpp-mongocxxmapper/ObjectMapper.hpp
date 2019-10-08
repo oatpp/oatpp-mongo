@@ -80,12 +80,12 @@ public:
    * @return - DTO
    */
   template<class Class>
-  typename Class::ObjectWrapper readFromDocument(bsoncxx::document::view &document) const {
+  typename Class::ObjectWrapper readFromDocument(const bsoncxx::document::view &document) const {
     return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(document, Class::ObjectWrapper::Class::getType()));
   }
 
  private:
-  oatpp::data::mapping::type::AbstractObjectWrapper read(bsoncxx::document::view &document,
+  oatpp::data::mapping::type::AbstractObjectWrapper read(const bsoncxx::document::view &document,
                                             const oatpp::data::mapping::type::Type* const type) const;
 
  public:
