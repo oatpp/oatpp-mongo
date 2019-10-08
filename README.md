@@ -11,7 +11,7 @@ libmongocxx installed.
 
 ### Example
 
-```
+```c++
 /**
  * DTO.hpp
  * See https://oatpp.io/docs/components/dto/
