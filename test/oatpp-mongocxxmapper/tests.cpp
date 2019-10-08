@@ -105,7 +105,8 @@ public:
         }
 
         auto deserializeStart = std::chrono::system_clock::now();
-        auto desdto = mongomapper->readFromDocument<oatpp::test::mongocxxmapper::TestDto>(mongo);
+        auto view = mongo.view();
+        auto desdto = mongomapper->readFromDocument<oatpp::test::mongocxxmapper::TestDto>(view);
         auto deserializeEnd = std::chrono::system_clock::now();
 
         std::string deomstr = jsonmapper->writeToString(desdto)->std_str();
