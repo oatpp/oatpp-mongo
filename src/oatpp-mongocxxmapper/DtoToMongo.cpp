@@ -118,7 +118,6 @@ void DtoToMongo::writeObjValue(bsoncxx::builder::stream::document::key_context* 
 void DtoToMongo::writeArrValue(bsoncxx::builder::stream::array::array_context* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config) {
 
   if(!polymorph) {
-    *stream << bsoncxx::types::b_null{};
     return;
   }
 

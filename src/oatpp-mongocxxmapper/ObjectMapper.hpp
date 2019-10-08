@@ -37,17 +37,17 @@
 namespace oatpp { namespace parser { namespace mongocxx { namespace mapping {
 
 /**
- * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
+ * mongocxx ObjectMapper. Mappes oatpp DTO objects to/from mongocxx documents.
  * See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/). <br>
- * Extends &id:oatpp::base::Countable;, &id:oatpp::data::mapping::ObjectMapper;.
+ * Extends &id:oatpp::base::Countable;.
  */
 class ObjectMapper : public oatpp::base::Countable {
 
 public:
   /**
    * Constructor.
-   * @param pSerializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
-   * @param pDeserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @param pSerializerConfig - &id:oatpp::parser::mongocxx::mapping::DtoToMongo::Config;.
+   * @param pDeserializerConfig - &id:oatpp::parser::mongocxx::mapping::MongoToDto::Config;.
    */
   ObjectMapper(const std::shared_ptr<DtoToMongo::Config>& pSerializerConfig = DtoToMongo::Config::createShared(),
                const std::shared_ptr<MongoToDto::Config>& pDeserializerConfig = MongoToDto::Config::createShared());
@@ -55,8 +55,8 @@ public:
 
   /**
    * Create shared ObjectMapper.
-   * @param serializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
-   * @param deserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @param pSerializerConfig - &id:oatpp::parser::mongocxx::mapping::DtoToMongo::Config;.
+   * @param pDeserializerConfig - &id:oatpp::parser::mongocxx::mapping::MongoToDto::Config;.
    * @return - `std::shared_ptr` to ObjectMapper.
    */
   static std::shared_ptr<ObjectMapper>
@@ -64,13 +64,24 @@ public:
                const std::shared_ptr<MongoToDto::Config>& deserializerConfig = MongoToDto::Config::createShared());
 
 
+  /**
+   * Maps the DTO/AbstractObjectWrapper to a mongocxx document
+   * @param variant - &id:oatpp::data::mapping::type::AbstractObjectWrapper; the object to map.
+   * @return - mongocxx document
+   */
   bsoncxx::document::value writeAsDocument(const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const;
 
 
+  /**
+   * Maps the given mongocxx document to a DTO of type &:Class;.
+   * throws `std::runtime_error` on unknown fields (if configured) or when the type in &l:document; does not match the type expected by the DTO.
+   * @tparam Class - The DTO-type
+   * @param document - mongocxx document
+   * @return - DTO
+   */
   template<class Class>
   typename Class::ObjectWrapper readFromDocument(bsoncxx::document::value &document) const {
-    auto type = Class::ObjectWrapper::Class::getType();
-    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(document, type));
+    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(document, Class::ObjectWrapper::Class::getType()));
   }
 
  private:
