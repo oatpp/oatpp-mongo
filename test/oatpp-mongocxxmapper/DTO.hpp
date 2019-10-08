@@ -33,16 +33,27 @@ namespace oatpp { namespace test { namespace mongocxxmapper {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+class SubDto : public oatpp::data::mapping::type::Object {
+  DTO_INIT(SubDto, Object);
+  DTO_FIELD(String, sub);
+};
+
 class TestDto : public oatpp::data::mapping::type::Object {
 
  DTO_INIT(TestDto, Object)
 
   DTO_FIELD(String, testValue);
   DTO_FIELD(String, nullValue);
+  DTO_FIELD(Int8, i8Value);
+  DTO_FIELD(Int16, i16Value);
+  DTO_FIELD(Int32, i32Value);
+  DTO_FIELD(Int64, i64Value);
+  DTO_FIELD(Boolean, boolValue);
   DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
   DTO_FIELD(List<String>::ObjectWrapper, testList);
   DTO_FIELD(List<Fields<String>::ObjectWrapper>::ObjectWrapper, testMapList);
   DTO_FIELD(Fields<Fields<String>::ObjectWrapper>::ObjectWrapper, testMapMap);
+  DTO_FIELD(SubDto::ObjectWrapper, subObject);
 
 };
 

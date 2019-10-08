@@ -60,6 +60,15 @@ public:
     dto->testMap = dto->testMap->createShared();
     dto->testMap->put("Foo", "Bar");
 
+    dto->i8Value = INT8_MAX;
+    dto->i16Value = INT16_MAX;
+    dto->i32Value = INT32_MAX;
+    dto->i64Value = INT64_MAX;
+    dto->boolValue = false;
+
+    dto->subObject = dto->subObject->createShared();
+    dto->subObject->sub = "sup?";
+
     dto->testMapList = dto->testMapList->createShared();
     auto map = dto->testMap->createShared();
     map->put("hurr","durr");
@@ -67,6 +76,7 @@ public:
     dto->testMapMap->put("test", map);
     dto->testMapList->pushBack(map);
     dto->testMapList->pushBack(dto->testMap);
+
 
     return dto;
   }

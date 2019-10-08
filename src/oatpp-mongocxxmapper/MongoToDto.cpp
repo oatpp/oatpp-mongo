@@ -74,7 +74,7 @@ MongoToDto::AbstractObjectWrapper MongoToDto::readInt16Value(const bsoncxx::type
 
 MongoToDto::AbstractObjectWrapper MongoToDto::readInt32Value(const bsoncxx::types::value& caret){
   if(caret.type() == bsoncxx::type::k_int32 /*caret.isAtText("null", true)*/){
-    return AbstractObjectWrapper(Int32::ObjectType::createAbstract((const int)caret.get_int32()), Int32::ObjectWrapper::Class::getType());
+    return AbstractObjectWrapper(Int32::ObjectType::createAbstract((const v_int32)caret.get_int32()), Int32::ObjectWrapper::Class::getType());
   } else if (caret.type() == bsoncxx::type::k_null) {
     return AbstractObjectWrapper(Int32::ObjectWrapper::Class::getType());
   }
@@ -85,7 +85,7 @@ MongoToDto::AbstractObjectWrapper MongoToDto::readInt32Value(const bsoncxx::type
 
 MongoToDto::AbstractObjectWrapper MongoToDto::readInt64Value(const bsoncxx::types::value& caret){
   if(caret.type() == bsoncxx::type::k_int64 /*caret.isAtText("null", true)*/){
-    return AbstractObjectWrapper(Int64::ObjectType::createAbstract((const int)caret.get_int64()), Int64::ObjectWrapper::Class::getType());
+    return AbstractObjectWrapper(Int64::ObjectType::createAbstract((const v_int64)caret.get_int64()), Int64::ObjectWrapper::Class::getType());
   } else if (caret.type() == bsoncxx::type::k_null) {
     return AbstractObjectWrapper(Int64::ObjectWrapper::Class::getType());
   }
@@ -174,6 +174,10 @@ MongoToDto::AbstractObjectWrapper MongoToDto::readValue(const Type* const type,
   auto typeName = type->name;
   if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME){
     return readStringValue(caret);
+  } else if(typeName == oatpp::data::mapping::type::__class::Int8::CLASS_NAME){
+    return readInt8Value(caret);
+  } else if(typeName == oatpp::data::mapping::type::__class::Int16::CLASS_NAME){
+    return readInt16Value(caret);
   } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME){
     return readInt32Value(caret);
   } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME){
@@ -196,34 +200,6 @@ MongoToDto::AbstractObjectWrapper MongoToDto::readValue(const Type* const type,
   
 }
 
-//MongoToDto::AbstractObjectWrapper MongoToDto::readValue(const MongoToDto::Type *const type,
-//                                                      const bsoncxx::array::element &caret,
-//                                                      const std::shared_ptr<MongoToDto::Config> &config) {
-//  bsoncxx::types::value{caret};
-//  auto typeName = type->name;
-//  if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME){
-//    return readStringValue(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME){
-//    return readInt32Value(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME){
-//    return readInt64Value(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME){
-//    return readFloat32Value(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME){
-//    return readFloat64Value(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME){
-//    return readBooleanValue(caret);
-//  } else if(typeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
-//    return readObjectValue(type, caret, config);
-//  } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
-//    return readListValue(type, caret, config);
-//  } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
-//    return readListMapValue(type, caret, config);
-//  }
-//
-//  return AbstractObjectWrapper::empty();
-//}
-  
 MongoToDto::AbstractObjectWrapper MongoToDto::readList(const Type* type,
                                                  const bsoncxx::types::value& caret,
                                                  const std::shared_ptr<Config>& config){
