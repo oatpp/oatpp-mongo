@@ -64,7 +64,7 @@ void DtoToMongo::writeValue(bsoncxx::builder::stream::document::key_context* str
       }
     }
   } else {
-    std::string err = "[oatpp::kafka::protocol::mapping::DtoToMongo::writeField]: Datatype ";
+    std::string err = "[oatpp::parser::mongocxx::mapping::DtoToMongo::writeField]: Datatype ";
     err.append(typeName);
     err.append(" can not appear in document");
     throw std::runtime_error(err);
@@ -108,7 +108,7 @@ void DtoToMongo::writeObjValue(bsoncxx::builder::stream::document::key_context* 
     }
 
   } else {
-    std::string err = "[oatpp::kafka::protocol::mapping::DtoToMongo::writeField]: Datatype ";
+    std::string err = "[oatpp::parser::mongocxx::mapping::DtoToMongo::writeField]: Datatype ";
     err.append(typeName);
     err.append(" is not an object value");
     throw std::runtime_error(err);
@@ -136,7 +136,7 @@ void DtoToMongo::writeArrValue(bsoncxx::builder::stream::array::array_context* s
     }
 
   } else {
-    std::string err = "[oatpp::kafka::protocol::mapping::DtoToMongo::writeField]: Datatype ";
+    std::string err = "[oatpp::parser::mongocxx::mapping::DtoToMongo::writeField]: Datatype ";
     err.append(typeName);
     err.append(" is not an list value");
     throw std::runtime_error(err);
@@ -200,7 +200,7 @@ void DtoToMongo::writeSimpleKV(bsoncxx::builder::stream::document::key_context *
     /**stream = */*stream << key << arr;
 
   } else {
-    std::string err = "[oatpp::kafka::protocol::mapping::DtoToMongo::writeField]: Datatype ";
+    std::string err = "[oatpp::parser::mongocxx::mapping::DtoToMongo::writeField]: Datatype ";
     err.append(typeName);
     err.append(" is not an simple value");
     throw std::runtime_error(err);
@@ -260,7 +260,7 @@ void DtoToMongo::writeSimpleV(bsoncxx::builder::stream::array::array_context *st
     /**stream = */*stream << arr;
 
   } else {
-    std::string err = "[oatpp::kafka::protocol::mapping::DtoToMongo::writeField]: Datatype ";
+    std::string err = "[oatpp::parser::mongocxx::mapping::DtoToMongo::writeField]: Datatype ";
     err.append(typeName);
     err.append(" is not an simple value");
     throw std::runtime_error(err);
