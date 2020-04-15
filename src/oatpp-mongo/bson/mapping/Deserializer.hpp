@@ -23,8 +23,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_bson_mapping_Deserializer_hpp
-#define oatpp_parser_bson_mapping_Deserializer_hpp
+#ifndef oatpp_mongo_bson_mapping_Deserializer_hpp
+#define oatpp_mongo_bson_mapping_Deserializer_hpp
 
 #include "oatpp/core/data/mapping/type/ListMap.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
@@ -211,4 +211,4 @@ public:
 
 }}}}
 
-#endif /* oatpp_parser_bson_mapping_Deserializer_hpp */
+#endif /* oatpp_mongo_bson_mapping_Deserializer_hpp */

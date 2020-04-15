@@ -65,7 +65,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //  if(id < m_methods.size()) {
 //    m_methods[id] = method;
 //  } else {
-//    throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::setDeserializerMethod()]: Error. Unknown classId");
+//    throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::setDeserializerMethod()]: Error. Unknown classId");
 //  }
 //}
 //
@@ -197,7 +197,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //    } else if(caret.isAtText("false", true)) {
 //      return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
 //    } else {
-//      caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
+//      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
 //      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
 //    }
 //  }
@@ -255,14 +255,14 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //
 //    if(!caret.canContinueAtChar(']', 1)){
 //      if(!caret.hasError()){
-//        caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
+//        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
 //      }
 //      return nullptr;
 //    };
 //
 //    return AbstractObjectWrapper(list.getPtr(), list.valueType);
 //  } else {
-//    caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
+//    caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
 //    return nullptr;
 //  }
 //
@@ -286,7 +286,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //    auto it = type->params.begin();
 //    Type* keyType = *it ++;
 //    if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
-//      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
+//      throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
 //    }
 //    Type* valueType = *it;
 //
@@ -302,7 +302,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //
 //      caret.skipBlankChars();
 //      if(!caret.canContinueAtChar(':', 1)){
-//        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+//        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readListMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
 //        return nullptr;
 //      }
 //
@@ -317,7 +317,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //
 //    if(!caret.canContinueAtChar('}', 1)){
 //      if(!caret.hasError()){
-//        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+//        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readListMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
 //      }
 //      return nullptr;
 //    }
@@ -325,7 +325,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //    return AbstractObjectWrapper(map.getPtr(), map.valueType);
 //
 //  } else {
-//    caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+//    caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
 //  }
 //
 //  return nullptr;
@@ -361,7 +361,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //
 //        caret.skipBlankChars();
 //        if(!caret.canContinueAtChar(':', 1)){
-//          caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+//          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readObject()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
 //          return nullptr;
 //        }
 //
@@ -373,13 +373,13 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //      } else if (deserializer->getConfig()->allowUnknownFields) {
 //        caret.skipBlankChars();
 //        if(!caret.canContinueAtChar(':', 1)){
-//          caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()/if(config->allowUnknownFields){}]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+//          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readObject()/if(config->allowUnknownFields){}]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
 //          return nullptr;
 //        }
 //        caret.skipBlankChars();
 //        skipValue(caret);
 //      } else {
-//        caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
+//        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
 //        return nullptr;
 //      }
 //
@@ -390,7 +390,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //
 //    if(!caret.canContinueAtChar('}', 1)){
 //      if(!caret.hasError()){
-//        caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+//        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
 //      }
 //      return nullptr;
 //    }
@@ -398,7 +398,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //    return object;
 //
 //  } else {
-//    caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+//    caret.setError("[oatpp::mongo::bson::mapping::Deserializer::readObject()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
 //  }
 //
 //  return nullptr;
@@ -411,7 +411,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 //  if(method) {
 //    return (*method)(this, caret, type);
 //  } else {
-//    throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+//    throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserialize()]: "
 //                             "Error. No deserialize method for type '" + std::string(type->classId.name) + "'");
 //  }
 //}

@@ -28,7 +28,7 @@
 
 #include "DTO.hpp"
 
-#include "oatpp-mongocxxmapper/ObjectMapper.hpp"
+#include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"

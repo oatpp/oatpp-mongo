@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MODULE_NAME="oatpp-mongocxxmapper"
+MODULE_NAME="oatpp-mongo"
 MODULE_VERSION="0.19.1"
 
 echo "remove include folder: '/usr/local/include/oatpp-$MODULE_VERSION/$MODULE_NAME'"

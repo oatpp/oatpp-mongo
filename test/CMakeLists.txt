@@ -1,6 +1,6 @@
 add_executable(module-tests
-        oatpp-mongocxxmapper/tests.cpp
-        oatpp-mongocxxmapper/DTO.hpp)
+        oatpp-mongo/tests.cpp
+        oatpp-mongo/DTO.hpp)
 
 set_target_properties(module-tests PROPERTIES
         CXX_STANDARD 11

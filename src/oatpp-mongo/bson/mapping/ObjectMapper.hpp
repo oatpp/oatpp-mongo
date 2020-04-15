@@ -23,8 +23,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_bson_mapping_ObjectMapper_hpp
-#define oatpp_parser_bson_mapping_ObjectMapper_hpp
+#ifndef oatpp_mongo_bson_mapping_ObjectMapper_hpp
+#define oatpp_mongo_bson_mapping_ObjectMapper_hpp
 
 #include "./Serializer.hpp"
 //#include "./Deserializer.hpp"
@@ -119,4 +119,4 @@ public:
   
 }}}}
 
-#endif /* oatpp_parser_bson_mapping_ObjectMapper_hpp */
+#endif /* oatpp_mongo_bson_mapping_ObjectMapper_hpp */

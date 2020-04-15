@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 ## These variables are passed to oatpp-module-install.cmake script
 ## use these variables to configure module installation
 
-set(OATPP_THIS_MODULE_NAME oatpp-mongocxxmapper) ## name of the module (also name of folders in installation dirs)
+set(OATPP_THIS_MODULE_NAME oatpp-mongo) ## name of the module (also name of folders in installation dirs)
 set(OATPP_THIS_MODULE_VERSION "1.0.0") ## version of the module (also sufix of folders in installation dirs)
-set(OATPP_THIS_MODULE_LIBRARIES oatpp-mongocxxmapper) ## list of libraries to find when find_package is called
-set(OATPP_THIS_MODULE_TARGETS oatpp-mongocxxmapper) ## list of targets to install
-set(OATPP_THIS_MODULE_DIRECTORIES oatpp-mongocxxmapper) ## list of directories to install
+set(OATPP_THIS_MODULE_LIBRARIES oatpp-mongo) ## list of libraries to find when find_package is called
+set(OATPP_THIS_MODULE_TARGETS oatpp-mongo) ## list of targets to install
+set(OATPP_THIS_MODULE_DIRECTORIES oatpp-mongo) ## list of directories to install
 
 ###################################################################################################
 

@@ -67,7 +67,7 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
   if(id < m_methods.size()) {
     m_methods[id] = method;
   } else {
-    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
   }
 }
 
@@ -80,7 +80,7 @@ void Serializer::serializeString(Serializer* serializer,
   (void) serializer;
 
   if(!key) {
-    throw std::runtime_error("[oatpp::parser::bson::mapping::Serializer::serializeString()]: Error. The key can't be null.");
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeString()]: Error. The key can't be null.");
   }
 
   if(polymorph) {
@@ -131,7 +131,7 @@ void Serializer::serializeList(Serializer* serializer,
   } else if(key) {
     bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
   } else {
-    throw std::runtime_error("[oatpp::parser::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
   }
 
 }
@@ -168,7 +168,7 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
   } else if(key) {
     bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
   } else {
-    throw std::runtime_error("[oatpp::parser::bson::mapping::Serializer::serializeFieldsMap()]: Error. null object with null key.");
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeFieldsMap()]: Error. null object with null key.");
   }
 
 }
@@ -204,7 +204,7 @@ void Serializer::serializeObject(Serializer* serializer,
   } else if(key) {
     bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
   } else {
-    throw std::runtime_error("[oatpp::parser::bson::mapping::Serializer::serializeObject()]: Error. null object with null key.");
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeObject()]: Error. null object with null key.");
   }
 
 }
@@ -218,7 +218,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
   if(method) {
     (*method)(this, stream, key, polymorph);
   } else {
-    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serialize()]: "
                              "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
   }
 }

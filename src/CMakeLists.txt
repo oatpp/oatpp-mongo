@@ -1,12 +1,15 @@
 
 add_library(${OATPP_THIS_MODULE_NAME}
-        oatpp-mongocxxmapper/Serializer.cpp
-        oatpp-mongocxxmapper/Serializer.hpp
-        oatpp-mongocxxmapper/Deserializer.cpp
-        oatpp-mongocxxmapper/Deserializer.hpp
-        oatpp-mongocxxmapper/ObjectMapper.cpp
-        oatpp-mongocxxmapper/ObjectMapper.hpp
-        oatpp-mongocxxmapper/Utils.cpp oatpp-mongocxxmapper/Utils.hpp oatpp-mongocxxmapper/Types.hpp)
+        oatpp-mongo/bson/mapping/Serializer.cpp
+        oatpp-mongo/bson/mapping/Serializer.hpp
+        oatpp-mongo/bson/mapping/Deserializer.cpp
+        oatpp-mongo/bson/mapping/Deserializer.hpp
+        oatpp-mongo/bson/mapping/ObjectMapper.cpp
+        oatpp-mongo/bson/mapping/ObjectMapper.hpp
+        oatpp-mongo/bson/Utils.cpp
+        oatpp-mongo/bson/Utils.hpp
+        oatpp-mongo/bson/Types.hpp
+)
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
         CXX_STANDARD 11

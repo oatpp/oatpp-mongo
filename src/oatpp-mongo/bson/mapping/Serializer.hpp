@@ -23,11 +23,11 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_bson_mapping_Serializer_hpp
-#define oatpp_parser_bson_mapping_Serializer_hpp
+#ifndef oatpp_mongo_bson_mapping_Serializer_hpp
+#define oatpp_mongo_bson_mapping_Serializer_hpp
 
-#include "./Utils.hpp"
-#include "./Types.hpp"
+#include "oatpp-mongo/bson/Utils.hpp"
+#include "oatpp-mongo/bson/Types.hpp"
 
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 
@@ -115,7 +115,7 @@ private:
     (void) serializer;
 
     if(!key) {
-      throw std::runtime_error("[oatpp::parser::bson::mapping::Serializer::serializePrimitive()]: Error. The key can't be null.");
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializePrimitive()]: Error. The key can't be null.");
     }
 
     if(polymorph) {
@@ -185,4 +185,4 @@ public:
 
 }}}}
 
-#endif /* oatpp_parser_bson_mapping_Serializer_hpp */
+#endif /* oatpp_mongo_bson_mapping_Serializer_hpp */
