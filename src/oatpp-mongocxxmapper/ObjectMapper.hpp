@@ -23,84 +23,100 @@
  *
  ***************************************************************************/
 
+#ifndef oatpp_parser_bson_mapping_ObjectMapper_hpp
+#define oatpp_parser_bson_mapping_ObjectMapper_hpp
 
-#ifndef oatpp_parser_mongocxx_mapping_ObjectMapper_hpp
-#define oatpp_parser_mongocxx_mapping_ObjectMapper_hpp
-
-#include "DtoToMongo.hpp"
-#include "MongoToDto.hpp"
+#include "./Serializer.hpp"
+//#include "./Deserializer.hpp"
 
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 
-#include <bsoncxx/builder/basic/document.hpp>
-
-namespace oatpp { namespace parser { namespace mongocxx { namespace mapping {
+namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
 /**
- * mongocxx ObjectMapper. Mappes oatpp DTO objects to/from mongocxx documents.
+ * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
  * See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/). <br>
- * Extends &id:oatpp::base::Countable;.
+ * Extends &id:oatpp::base::Countable;, &id:oatpp::data::mapping::ObjectMapper;.
  */
-class ObjectMapper : public oatpp::base::Countable {
-
+class ObjectMapper : public oatpp::base::Countable, public oatpp::data::mapping::ObjectMapper {
+private:
+  static Info& getMapperInfo() {
+    static Info info("application/bson");
+    return info;
+  }
+private:
+  std::shared_ptr<Serializer> m_serializer;
+//  std::shared_ptr<Deserializer> m_deserializer;
 public:
   /**
    * Constructor.
-   * @param pSerializerConfig - &id:oatpp::parser::mongocxx::mapping::DtoToMongo::Config;.
-   * @param pDeserializerConfig - &id:oatpp::parser::mongocxx::mapping::MongoToDto::Config;.
+   * @param serializerConfig - &id:oatpp::parser::bson::mapping::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::parser::bson::mapping::Deserializer::Config;.
    */
-  ObjectMapper(const std::shared_ptr<DtoToMongo::Config>& pSerializerConfig = DtoToMongo::Config::createShared(),
-               const std::shared_ptr<MongoToDto::Config>& pDeserializerConfig = MongoToDto::Config::createShared());
+  ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig/*,
+               const std::shared_ptr<Deserializer::Config>& deserializerConfig*/);
+
+  /**
+   * Constructor.
+   * @param serializer
+   * @param deserializer
+   */
+  ObjectMapper(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>()/*,
+               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>()*/);
 public:
 
   /**
    * Create shared ObjectMapper.
-   * @param pSerializerConfig - &id:oatpp::parser::mongocxx::mapping::DtoToMongo::Config;.
-   * @param pDeserializerConfig - &id:oatpp::parser::mongocxx::mapping::MongoToDto::Config;.
+   * @param serializerConfig - &id:oatpp::parser::bson::mapping::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::parser::bson::mapping::Deserializer::Config;.
    * @return - `std::shared_ptr` to ObjectMapper.
    */
   static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<DtoToMongo::Config>& serializerConfig = DtoToMongo::Config::createShared(),
-               const std::shared_ptr<MongoToDto::Config>& deserializerConfig = MongoToDto::Config::createShared());
+  createShared(const std::shared_ptr<Serializer::Config>& serializerConfig/*,
+               const std::shared_ptr<Deserializer::Config>& deserializerConfig*/);
+
+  /**
+   * Create shared ObjectMapper.
+   * @param serializer
+   * @param deserializer
+   * @return
+   */
+  static std::shared_ptr<ObjectMapper>
+  createShared(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>()/*,
+               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>()*/);
+
+  /**
+   * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
+   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
+   * @param variant - object to serialize &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   */
+  void write(data::stream::ConsistentOutputStream* stream,
+             const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override;
+
+  /**
+   * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
+   * @return - &id:oatpp::data::mapping::type::AbstractObjectWrapper; holding resultant object.
+   */
+  oatpp::data::mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
+                                                         const oatpp::data::mapping::type::Type* const type) const override;
 
 
   /**
-   * Maps the DTO/AbstractObjectWrapper to a mongocxx document
-   * @param variant - &id:oatpp::data::mapping::type::AbstractObjectWrapper; the object to map.
-   * @return - mongocxx document
+   * Get serializer.
+   * @return
    */
-  bsoncxx::document::value writeAsDocument(const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const;
-
+  std::shared_ptr<Serializer> getSerializer();
 
   /**
-   * Maps the given mongocxx document to a DTO of type &:Class;.
-   * throws `std::runtime_error` on unknown fields (if configured) or when the type in &l:document; does not match the type expected by the DTO.
-   * @tparam Class - The DTO-type
-   * @param document - mongocxx document
-   * @return - DTO
+   * Get deserializer.
+   * @return
    */
-  template<class Class>
-  typename Class::ObjectWrapper readFromDocument(const bsoncxx::document::view &document) const {
-    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(document, Class::ObjectWrapper::Class::getType()));
-  }
-
- private:
-  oatpp::data::mapping::type::AbstractObjectWrapper read(const bsoncxx::document::view &document,
-                                            const oatpp::data::mapping::type::Type* const type) const;
-
- public:
-  /**
-   * Serializer config.
-   */
-  std::shared_ptr<DtoToMongo::Config> serializerConfig;
-
-  /**
-   * Deserializer config.
-   */
-  std::shared_ptr<MongoToDto::Config> deserializerConfig;
+  //std::shared_ptr<Deserializer> getDeserializer();
   
 };
   
 }}}}
 
-#endif /* oatpp_parser_mongocxx_mapping_ObjectMapper_hpp */
+#endif /* oatpp_parser_bson_mapping_ObjectMapper_hpp */

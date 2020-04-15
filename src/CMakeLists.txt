@@ -1,12 +1,12 @@
 
 add_library(${OATPP_THIS_MODULE_NAME}
-        oatpp-mongocxxmapper/MongoToDto.cpp
-        oatpp-mongocxxmapper/MongoToDto.hpp
-        oatpp-mongocxxmapper/DtoToMongo.cpp
-        oatpp-mongocxxmapper/DtoToMongo.hpp
+        oatpp-mongocxxmapper/Serializer.cpp
+        oatpp-mongocxxmapper/Serializer.hpp
+        oatpp-mongocxxmapper/Deserializer.cpp
+        oatpp-mongocxxmapper/Deserializer.hpp
         oatpp-mongocxxmapper/ObjectMapper.cpp
         oatpp-mongocxxmapper/ObjectMapper.hpp
-)
+        oatpp-mongocxxmapper/Utils.cpp oatpp-mongocxxmapper/Utils.hpp oatpp-mongocxxmapper/Types.hpp)
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
         CXX_STANDARD 11

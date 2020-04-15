@@ -23,32 +23,50 @@
  *
  ***************************************************************************/
 
-
 #include "ObjectMapper.hpp"
 
-namespace oatpp { namespace parser { namespace mongocxx { namespace mapping {
+namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
-ObjectMapper::ObjectMapper(const std::shared_ptr<DtoToMongo::Config>& pSerializerConfig,
-                           const std::shared_ptr<MongoToDto::Config>& pDeserializerConfig)
-  : serializerConfig(pSerializerConfig)
-  , deserializerConfig(pDeserializerConfig)
+ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig/*,
+                           const std::shared_ptr<Deserializer::Config>& deserializerConfig*/)
+  : data::mapping::ObjectMapper(getMapperInfo())
+  , m_serializer(std::make_shared<Serializer>(serializerConfig))
+  //, m_deserializer(std::make_shared<Deserializer>(deserializerConfig))
 {}
 
-std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<DtoToMongo::Config>& serializerConfig,
-                                                         const std::shared_ptr<MongoToDto::Config>& deserializerConfig){
-  return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
+ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer>& serializer/*,
+                           const std::shared_ptr<Deserializer>& deserializer*/)
+  : data::mapping::ObjectMapper(getMapperInfo())
+  , m_serializer(serializer)
+  //, m_deserializer(deserializer)
+{}
+
+std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer::Config>& serializerConfig/*,
+                                                         const std::shared_ptr<Deserializer::Config>& deserializerConfig*/){
+  return std::make_shared<ObjectMapper>(serializerConfig/*, deserializerConfig*/);
 }
 
+std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer>& serializer/*,
+                                                         const std::shared_ptr<Deserializer>& deserializer*/){
+  return std::make_shared<ObjectMapper>(serializer/*, deserializer*/);
+}
 
-oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(const bsoncxx::document::view &document,
+void ObjectMapper::write(data::stream::ConsistentOutputStream* stream,
+                         const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const {
+  m_serializer->serializeToStream(stream, variant);
+}
+
+oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(oatpp::parser::Caret& caret,
                                                                      const oatpp::data::mapping::type::Type* const type) const {
-  return MongoToDto::deserialize(document, deserializerConfig, type);
+  //return m_deserializer->deserialize(caret, type);
 }
 
-bsoncxx::document::value ObjectMapper::writeAsDocument(const oatpp::data::mapping::type::AbstractObjectWrapper &variant) const {
-  bsoncxx::builder::stream::document doc;
-  DtoToMongo::serialize(&doc, variant, serializerConfig);
-  return doc << bsoncxx::builder::stream::finalize;
+std::shared_ptr<Serializer> ObjectMapper::getSerializer() {
+  return m_serializer;
 }
+
+//std::shared_ptr<Deserializer> ObjectMapper::getDeserializer() {
+//  return m_deserializer;
+//}
 
 }}}}

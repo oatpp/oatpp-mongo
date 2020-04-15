@@ -31,24 +31,117 @@
 #include "oatpp-mongocxxmapper/ObjectMapper.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
+
 #include "oatpp/core/base/Environment.hpp"
 
 #include <iostream>
 #include <string>
 #include <algorithm>
+
 #include <bsoncxx/json.hpp>
+#include <bsoncxx/builder/stream/array.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/builder/stream/helpers.hpp>
+
+
+#include <bsoncxx/builder/stream/array.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/builder/stream/helpers.hpp>
+#include <bsoncxx/types.hpp>
 
 namespace {
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class Test1 : public oatpp::Object {
+
+  DTO_INIT(Test1, Object)
+
+//  DTO_FIELD(Int8, i8) = std::numeric_limits<v_int8>::max();
+//  DTO_FIELD(UInt8, u8) = std::numeric_limits<v_uint8>::max();
+//
+//  DTO_FIELD(Int16, i16) = std::numeric_limits<v_int16>::max();
+//  DTO_FIELD(UInt16, u16) = std::numeric_limits<v_uint16>::max();
+//
+//  DTO_FIELD(Int32, i32) = std::numeric_limits<v_int32>::max();
+//  DTO_FIELD(UInt32, u32) = std::numeric_limits<v_uint32>::max();
+//
+//  DTO_FIELD(Int64, i64) = std::numeric_limits<v_int64>::max();
+
+//  DTO_FIELD(Float32, f32) = std::numeric_limits<v_float32>::max();
+//  DTO_FIELD(Float64, f64) = std::numeric_limits<v_float64>::max();
+
+//  DTO_FIELD(Boolean, b1) = true;
+//  DTO_FIELD(Boolean, b0) = false;
+
+
+  DTO_FIELD(List<Int8>::ObjectWrapper, list_i8) = List<Int8>::createShared();
+  DTO_FIELD(List<UInt8>::ObjectWrapper, list_u8) = List<UInt8>::createShared();
+
+  DTO_FIELD(List<Int16>::ObjectWrapper, list_i16) = List<Int16>::createShared();
+  DTO_FIELD(List<UInt16>::ObjectWrapper, list_u16) = List<UInt16>::createShared();
+
+  DTO_FIELD(List<Int32>::ObjectWrapper, list_i32) = List<Int32>::createShared();
+  DTO_FIELD(List<UInt32>::ObjectWrapper, list_u32) = List<UInt32>::createShared();
+
+  DTO_FIELD(List<Int64>::ObjectWrapper, list_i64) = List<Int64>::createShared();
+
+  DTO_FIELD(List<Boolean>::ObjectWrapper, list_b) = List<Boolean>::createShared();
+
+//  DTO_FIELD(List<Float32>::ObjectWrapper, list_f32) = List<Float32>::createShared();
+//  DTO_FIELD(List<Float64>::ObjectWrapper, list_f64) = List<Float64>::createShared();
+
+};
+
+#include OATPP_CODEGEN_END(DTO)
 
 class Test : public oatpp::test::UnitTest {
 public:
   Test() : oatpp::test::UnitTest("MyTag")
   {}
 
-  std::shared_ptr<oatpp::parser::json::mapping::ObjectMapper> jsonmapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
-  std::shared_ptr<oatpp::parser::mongocxx::mapping::ObjectMapper> mongomapper = oatpp::parser::mongocxx::mapping::ObjectMapper::createShared();
+  void writeBin(const void* voiddata, v_int32 length) {
+    p_char8 data = (p_char8)voiddata;
+    oatpp::data::stream::BufferOutputStream stream;
+    stream << "\nbegin:\n";
+    for(v_int32 i = 0; i < length; i ++) {
 
-  static const unsigned ITERATIONS = 10000;
+      v_char8 a = data[i];
+      if(a >= ' ' && a <= 'z') {
+        stream << "'" << oatpp::String((const char*) (&data[i]), 1, false) << "'";
+      } else {
+        stream << (v_uint8) a;
+      }
+      stream << "\n";
+    }
+    OATPP_LOGD("AAA", "='%s'\n", stream.toString()->getData());
+  }
+
+  void writeBin(const oatpp::String& data) {
+    writeBin(data->getData(), data->getSize());
+  }
+
+  void binDouble(double value) {
+    constexpr v_uint64 one = 1;
+    v_uint64 word = *((p_uint64) &value);
+    oatpp::data::stream::BufferOutputStream stream;
+    for(v_uint64 i = 0; i < 64; i ++) {
+
+      v_uint64 bit = (one << i) & word;
+      if(bit > 0) {
+        stream << "1";
+      } else {
+        stream << "0";
+      }
+
+      if((i + 1) % 8 == 0) {
+        stream << ",";
+      }
+
+    }
+    OATPP_LOGD("DBL", "'%s' = %f", stream.toString()->getData(), value);
+  }
 
   static oatpp::test::mongocxxmapper::TestDto::ObjectWrapper makeTestDto() {
     auto dto = oatpp::test::mongocxxmapper::TestDto::createShared();
@@ -83,68 +176,46 @@ public:
 
   void onRun() override {
 
-    auto dto = makeTestDto();
+    oatpp::parser::json::mapping::ObjectMapper jsonMapper;
+    oatpp::mongo::bson::mapping::ObjectMapper bsonMapper;
 
-    { // speedtest of mapper
-      long long unsigned serialization = 0;
-      long long unsigned deserialization = 0;
-      for (int i = 0; i < ITERATIONS; ++i) {
-        auto serializeStart = std::chrono::system_clock::now();
-        auto mongo = mongomapper->writeAsDocument(dto);
-        auto serializeEnd = std::chrono::system_clock::now();
+    auto obj = Test1::createShared();
+    obj->list_i8->pushBack(8);
+    obj->list_u8->pushBack(8);
+    obj->list_i16->pushBack(1024);
+    obj->list_u16->pushBack(1024);
+    obj->list_i32->pushBack(2000000000);
+    obj->list_u32->pushBack(4000000000);
+    obj->list_b->pushBack(true);
+    obj->list_b->pushBack(false);
+//    obj->list_f32->pushBack(0.32);
+//    obj->list_f64->pushBack(0.64);
 
-        std::string omstr = jsonmapper->writeToString(dto)->std_str();
-        omstr.erase(std::remove(omstr.begin(), omstr.end(), ' '), omstr.end());
-        std::string bsonstr = bsoncxx::to_json(mongo.view());
-        bsonstr.erase(std::remove(bsonstr.begin(), bsonstr.end(), ' '), bsonstr.end());
+    auto json = jsonMapper.writeToString(obj);
+    auto bson = bsonMapper.writeToString(obj);
 
-        if (i == 0) {
-          OATPP_LOGV(TAG, "OATPP   JSON: %s", omstr.c_str());
-          OATPP_LOGV(TAG, "BSONCXX JSON: %s", bsonstr.c_str());
-          OATPP_ASSERT(omstr == bsonstr);
-        }
+    OATPP_LOGD("json", "'%s'", json->getData());
 
-        auto deserializeStart = std::chrono::system_clock::now();
-        auto view = mongo.view();
-        auto desdto = mongomapper->readFromDocument<oatpp::test::mongocxxmapper::TestDto>(view);
-        auto deserializeEnd = std::chrono::system_clock::now();
+    auto strv = bsoncxx::stdx::string_view(json->c_str());
+    bsoncxx::document::view view = bsoncxx::from_json(strv);
 
-        std::string deomstr = jsonmapper->writeToString(desdto)->std_str();
-        deomstr.erase(std::remove(deomstr.begin(), deomstr.end(), ' '), deomstr.end());
-        if (i == 0) {
-          OATPP_LOGV(TAG, "DESDTO  JSON: %s", deomstr.c_str());
-          OATPP_ASSERT(omstr == deomstr);
-        }
-        serialization += std::chrono::duration_cast<std::chrono::nanoseconds>(serializeEnd - serializeStart).count();
-        deserialization +=
-            std::chrono::duration_cast<std::chrono::nanoseconds>(deserializeEnd - deserializeStart).count();
-      }
-      OATPP_LOGV(TAG,
-                 "Mapper-Timings: %u DTO-to-Mongo %llums, %u Mongo-to-DTO %llums",
-                 ITERATIONS, serialization / 1000000,
-                 ITERATIONS, deserialization / 100000)
+    auto original = oatpp::String((const char*)view.data(), view.length(), true);
+
+    writeBin(original);
+    writeBin(bson);
+
+    if(original != bson) {
+      OATPP_LOGE("json", "ERROR");
     }
 
-    { // speedtest of basic string mapping
-      long long unsigned serialization = 0;
-      long long unsigned deserialization = 0;
-      for(int i = 0; i < ITERATIONS; ++i) {
-        auto serializationStart = std::chrono::system_clock::now();
-        std::string serjson = jsonmapper->writeToString(dto)->std_str();
-        auto serview = bsoncxx::from_json(bsoncxx::stdx::string_view(serjson));
-        auto serializationEnd = std::chrono::system_clock::now();
-        std::string desjson = bsoncxx::to_json(serview);
-        auto desdto = jsonmapper->readFromString<oatpp::test::mongocxxmapper::TestDto>(desjson.c_str());
-        auto deserializationEnd = std::chrono::system_clock::now();
-        serialization += std::chrono::duration_cast<std::chrono::nanoseconds>(serializationEnd - serializationStart).count();
-        deserialization +=
-            std::chrono::duration_cast<std::chrono::nanoseconds>(deserializationEnd - serializationEnd).count();
-      }
-      OATPP_LOGV(TAG,
-                 "String-Parsing-Timings: %u DTO-to-Mongo %llums, %u Mongo-to-DTO %llums",
-                 ITERATIONS, serialization / 1000000,
-                 ITERATIONS, deserialization / 100000)
-    }
+    binDouble(2.0);
+    binDouble(0);
+
+    v_char8 t[8] = {0, 0, 0, 224, 255, 255, 239, 'G'};
+    p_float64 r = (p_float64)&t[0];
+
+    OATPP_LOGD("A", "R=%g", *r);
+
   }
 };
 
