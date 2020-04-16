@@ -26,6 +26,9 @@
 #ifndef oatpp_mongo_bson_Utils_hpp
 #define oatpp_mongo_bson_Utils_hpp
 
+#include "./Types.hpp"
+
+#include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
@@ -56,9 +59,11 @@ public:
 
 public:
 
-  static void writeKey(data::stream::ConsistentOutputStream *stream, v_char8 dataType, const data::share::StringKeyLabel &key);
+  static void writeKey(data::stream::ConsistentOutputStream *stream, TypeCode typeCode, const data::share::StringKeyLabel &key);
+  static oatpp::String readKey(parser::Caret& caret, v_char8& typeCode);
 
   static void writeInt32(data::stream::ConsistentOutputStream *stream, v_int32 value, BO_TYPE valueBO = INT_BO);
+  static v_int32 readInt32(parser::Caret& caret, BO_TYPE valueBO = INT_BO);
 
   static void writeInt64(data::stream::ConsistentOutputStream *stream, v_int64 value, BO_TYPE valueBO = INT_BO);
 

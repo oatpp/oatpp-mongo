@@ -122,7 +122,7 @@ private:
       auto str = static_cast<oatpp::base::StrBuffer *>(polymorph.get());
       bson::Utils::writePrimitive(stream, key, static_cast<typename T::ObjectType*>(polymorph.get())->getValue());
     } else {
-      bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
+      bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
     }
   }
 

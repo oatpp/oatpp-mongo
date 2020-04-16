@@ -85,15 +85,15 @@ void Serializer::serializeString(Serializer* serializer,
 
   if(polymorph) {
 
-    bson::Utils::writeKey(stream, Types::STRING, key);
+    bson::Utils::writeKey(stream, TypeCode::STRING, key);
 
     auto str = static_cast<oatpp::base::StrBuffer *>(polymorph.get());
-    bson::Utils::writeInt32(stream, str->getSize());
+    bson::Utils::writeInt32(stream, str->getSize() + 1);
     stream->writeSimple(str->getData(), str->getSize());
     stream->writeCharSimple(0);
 
   } else {
-    bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   }
 
 }
@@ -106,7 +106,7 @@ void Serializer::serializeList(Serializer* serializer,
 
   if(polymorph) {
 
-    bson::Utils::writeKey(stream, Types::DOCUMENT_ARRAY, key);
+    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_ARRAY, key);
 
     data::stream::BufferOutputStream innerStream;
 
@@ -129,7 +129,7 @@ void Serializer::serializeList(Serializer* serializer,
     stream->writeCharSimple(0);
 
   } else if(key) {
-    bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   } else {
     throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
   }
@@ -144,7 +144,7 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
 
   if(polymorph) {
 
-    bson::Utils::writeKey(stream, Types::DOCUMENT_EMBEDDED, key);
+    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
 
     data::stream::BufferOutputStream innerStream;
 
@@ -166,7 +166,7 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
     stream->writeCharSimple(0);
 
   } else if(key) {
-    bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   } else {
     throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeFieldsMap()]: Error. null object with null key.");
   }
@@ -181,7 +181,7 @@ void Serializer::serializeObject(Serializer* serializer,
 
   if(polymorph) {
 
-    bson::Utils::writeKey(stream, Types::DOCUMENT_EMBEDDED, key);
+    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
 
     data::stream::BufferOutputStream innerStream;
 
@@ -202,7 +202,7 @@ void Serializer::serializeObject(Serializer* serializer,
     stream->writeCharSimple(0);
 
   } else if(key) {
-    bson::Utils::writeKey(stream, Types::NULL_VALUE, key);
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   } else {
     throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeObject()]: Error. null object with null key.");
   }

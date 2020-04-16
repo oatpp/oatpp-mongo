@@ -33,7 +33,13 @@ namespace oatpp { namespace mongo { namespace bson {
 /**
  * Enum with bson data-type codes.
  */
-enum Types : v_char8 {
+enum TypeCode : v_char8 {
+
+  /**
+   * Not from BSON specification.
+   * This code is added to designate the entrypoint for parser.
+   */
+  DOCUMENT_ROOT = 0x00,
 
   /**
    * 64-bit binary floating point.

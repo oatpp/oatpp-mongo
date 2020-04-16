@@ -24,7 +24,6 @@
  ***************************************************************************/
 
 #include "Utils.hpp"
-#include "./Types.hpp"
 
 #include <iostream>
 
@@ -55,16 +54,30 @@ Utils::BO_TYPE Utils::detectFloatBO() {
   return result;
 }
 
-void Utils::writeKey(data::stream::ConsistentOutputStream *stream, v_char8 dataType, const data::share::StringKeyLabel &key)
-{
+void Utils::writeKey(data::stream::ConsistentOutputStream *stream, TypeCode typeCode, const data::share::StringKeyLabel &key) {
   if (key) {
-    stream->writeCharSimple(dataType);
+    stream->writeCharSimple(typeCode);
     stream->writeSimple(key.getData(), key.getSize());
     stream->writeCharSimple(0);
   }
 }
 
+oatpp::String Utils::readKey(parser::Caret& caret, v_char8& typeCode) {
+  typeCode = *caret.getCurrData();
+  caret.inc();
+  auto label = caret.putLabel();
+  if(caret.findChar(0)) {
+    label.end();
+    caret.inc();
+    return label.toString();
+  }
+
+  caret.setError("[oatpp::mongo::bson::Utils::readKey()]: Error. Unterminated cstring.");
+  return nullptr;
+}
+
 void Utils::writeInt32(data::stream::ConsistentOutputStream *stream, v_int32 value, BO_TYPE valueBO) {
+
   switch(valueBO) {
 
     case BO_TYPE::LITTLE:
@@ -81,6 +94,34 @@ void Utils::writeInt32(data::stream::ConsistentOutputStream *stream, v_int32 val
     }
 
   }
+
+}
+
+v_int32 Utils::readInt32(parser::Caret& caret, BO_TYPE valueBO) {
+
+  if(caret.getDataSize() - caret.getPosition() < 4) {
+    caret.setError("[oatpp::mongo::bson::Utils::readInt32()]: Error. Invalid Int32 value.");
+    return 0;
+  }
+
+  v_int32 result;
+
+  switch(valueBO) {
+
+    case BO_TYPE::LITTLE:
+      result = *((p_int32) caret.getCurrData());
+      break;
+
+    default: {
+      p_char8 data = caret.getCurrData();
+      result = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+    }
+
+  }
+
+  caret.inc(4);
+  return result;
+
 }
 
 void Utils::writeInt64(data::stream::ConsistentOutputStream *stream, v_int64 value, BO_TYPE valueBO) {
@@ -155,57 +196,57 @@ void Utils::writeFloat64(data::stream::ConsistentOutputStream *stream, v_float64
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int8 value) {
-  writeKey(stream, Types::INT_32, key);
+  writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint8 value) {
-  writeKey(stream, Types::INT_32, key);
+  writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int16 value) {
-  writeKey(stream, Types::INT_32, key);
+  writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint16 value) {
-  writeKey(stream, Types::INT_32, key);
+  writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int32 value) {
-  writeKey(stream, Types::INT_32, key);
+  writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint32 value) {
-  writeKey(stream, Types::INT_64, key);
+  writeKey(stream, TypeCode::INT_64, key);
   writeInt64(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int64 value) {
-  writeKey(stream, Types::INT_64, key);
+  writeKey(stream, TypeCode::INT_64, key);
   writeInt64(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint64 value) {
-  writeKey(stream, Types::TIMESTAMP, key);
+  writeKey(stream, TypeCode::TIMESTAMP, key);
   writeUInt64(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_float32 value) {
-  writeKey(stream, Types::DOUBLE, key);
+  writeKey(stream, TypeCode::DOUBLE, key);
   writeFloat64(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_float64 value) {
-  writeKey(stream, Types::DOUBLE, key);
+  writeKey(stream, TypeCode::DOUBLE, key);
   writeFloat64(stream, value);
 }
 
 void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, bool value) {
-  writeKey(stream, Types::BOOLEAN, key);
+  writeKey(stream, TypeCode::BOOLEAN, key);
   if(value) {
     stream->writeCharSimple(1);
   } else {

@@ -58,6 +58,8 @@ class Test1 : public oatpp::Object {
 
   DTO_INIT(Test1, Object)
 
+  DTO_FIELD(String, str) = "hello!";
+
 //  DTO_FIELD(Int8, i8) = std::numeric_limits<v_int8>::max();
 //  DTO_FIELD(UInt8, u8) = std::numeric_limits<v_uint8>::max();
 //
@@ -76,18 +78,18 @@ class Test1 : public oatpp::Object {
 //  DTO_FIELD(Boolean, b0) = false;
 
 
-  DTO_FIELD(List<Int8>::ObjectWrapper, list_i8) = List<Int8>::createShared();
-  DTO_FIELD(List<UInt8>::ObjectWrapper, list_u8) = List<UInt8>::createShared();
-
-  DTO_FIELD(List<Int16>::ObjectWrapper, list_i16) = List<Int16>::createShared();
-  DTO_FIELD(List<UInt16>::ObjectWrapper, list_u16) = List<UInt16>::createShared();
-
-  DTO_FIELD(List<Int32>::ObjectWrapper, list_i32) = List<Int32>::createShared();
-  DTO_FIELD(List<UInt32>::ObjectWrapper, list_u32) = List<UInt32>::createShared();
-
-  DTO_FIELD(List<Int64>::ObjectWrapper, list_i64) = List<Int64>::createShared();
-
-  DTO_FIELD(List<Boolean>::ObjectWrapper, list_b) = List<Boolean>::createShared();
+//  DTO_FIELD(List<Int8>::ObjectWrapper, list_i8) = List<Int8>::createShared();
+//  DTO_FIELD(List<UInt8>::ObjectWrapper, list_u8) = List<UInt8>::createShared();
+//
+//  DTO_FIELD(List<Int16>::ObjectWrapper, list_i16) = List<Int16>::createShared();
+//  DTO_FIELD(List<UInt16>::ObjectWrapper, list_u16) = List<UInt16>::createShared();
+//
+//  DTO_FIELD(List<Int32>::ObjectWrapper, list_i32) = List<Int32>::createShared();
+//  DTO_FIELD(List<UInt32>::ObjectWrapper, list_u32) = List<UInt32>::createShared();
+//
+//  DTO_FIELD(List<Int64>::ObjectWrapper, list_i64) = List<Int64>::createShared();
+//
+//  DTO_FIELD(List<Boolean>::ObjectWrapper, list_b) = List<Boolean>::createShared();
 
 //  DTO_FIELD(List<Float32>::ObjectWrapper, list_f32) = List<Float32>::createShared();
 //  DTO_FIELD(List<Float64>::ObjectWrapper, list_f64) = List<Float64>::createShared();
@@ -180,19 +182,22 @@ public:
     oatpp::mongo::bson::mapping::ObjectMapper bsonMapper;
 
     auto obj = Test1::createShared();
-    obj->list_i8->pushBack(8);
-    obj->list_u8->pushBack(8);
-    obj->list_i16->pushBack(1024);
-    obj->list_u16->pushBack(1024);
-    obj->list_i32->pushBack(2000000000);
-    obj->list_u32->pushBack(4000000000);
-    obj->list_b->pushBack(true);
-    obj->list_b->pushBack(false);
+//    obj->list_i8->pushBack(8);
+//    obj->list_u8->pushBack(8);
+//    obj->list_i16->pushBack(1024);
+//    obj->list_u16->pushBack(1024);
+//    obj->list_i32->pushBack(2000000000);
+//    obj->list_u32->pushBack(4000000000);
+//    obj->list_b->pushBack(true);
+//    obj->list_b->pushBack(false);
+
 //    obj->list_f32->pushBack(0.32);
 //    obj->list_f64->pushBack(0.64);
 
     auto json = jsonMapper.writeToString(obj);
     auto bson = bsonMapper.writeToString(obj);
+
+    auto obj2 = bsonMapper.readFromString<Test1>(bson);
 
     OATPP_LOGD("json", "'%s'", json->getData());
 
