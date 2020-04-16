@@ -25,11 +25,6 @@
 
 #include "Deserializer.hpp"
 
-#include "oatpp-mongo/bson/Utils.hpp"
-
-#include "oatpp/parser/json/Utils.hpp" // delete
-
-
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
@@ -42,20 +37,20 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 
   setDeserializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::Int8>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::UInt8>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int16>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt16>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::Int16>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::UInt16>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int32>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt32>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::Int32>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::UInt32>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int64>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt64>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::Int64>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializePrimitive<oatpp::UInt64>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializePrimitive<Float32>);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializePrimitive<Float64>);
   setDeserializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList);
@@ -152,39 +147,6 @@ void Deserializer::skipValue(oatpp::parser::Caret& caret){
   } else {
     skipToken(caret);
   }
-}
-
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat32(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type,
-                                                                            v_char8 bsonTypeCode)
-{
-
-  (void) deserializer;
-  (void) type;
-
-  if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float32::ObjectWrapper::Class::getType());
-  } else {
-    return AbstractObjectWrapper(Float32::ObjectType::createAbstract(caret.parseFloat32()), Float32::ObjectWrapper::Class::getType());
-  }
-}
-
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat64(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type,
-                                                                            v_char8 bsonTypeCode)
-{
-
-  (void) deserializer;
-  (void) type;
-
-  if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float64::ObjectWrapper::Class::getType());
-  } else {
-    return AbstractObjectWrapper(Float64::ObjectType::createAbstract(caret.parseFloat64()), Float64::ObjectWrapper::Class::getType());
-  }
-
 }
 
 data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Deserializer* deserializer,

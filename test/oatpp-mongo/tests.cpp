@@ -221,6 +221,8 @@ public:
 
     OATPP_LOGD("A", "R=%g", *r);
 
+    OATPP_LOGD("B", "v=%d", std::numeric_limits<v_int8>::min());
+
   }
 };
 

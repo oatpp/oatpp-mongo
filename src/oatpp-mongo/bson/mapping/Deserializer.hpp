@@ -26,6 +26,8 @@
 #ifndef oatpp_mongo_bson_mapping_Deserializer_hpp
 #define oatpp_mongo_bson_mapping_Deserializer_hpp
 
+#include "oatpp-mongo/bson/Utils.hpp"
+
 #include "oatpp/core/data/mapping/type/ListMap.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
@@ -60,42 +62,6 @@ public:
   typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
   typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
-public:
-
-  /**
- * "'{' - expected"
- */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_OPEN = 1;
-
-  /**
-   * "'}' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_CLOSE = 2;
-
-  /**
-   * "Unknown field"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD = 3;
-
-  /**
-   * "':' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_COLON_MISSING = 4;
-
-  /**
-   * "'[' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_OPEN = 5;
-
-  /**
-   * "']' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_CLOSE = 6;
-
-  /**
-   * "'true' or 'false' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_VALUE_BOOLEAN = 7;
 
 public:
 
@@ -137,35 +103,20 @@ private:
 private:
 
   template<class T>
-  static AbstractObjectWrapper deserializeInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode){
+  static AbstractObjectWrapper deserializePrimitive(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode){
 
     (void) deserializer;
     (void) type;
 
-    if(caret.isAtText("null", true)){
+    if(bsonTypeCode == TypeCode::NULL_VALUE) {
       return AbstractObjectWrapper(T::Class::getType());
-    } else {
-      return AbstractObjectWrapper(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseInt()), T::ObjectWrapper::Class::getType());
     }
 
-  }
-
-  template<class T>
-  static AbstractObjectWrapper deserializeUInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode){
-
-    (void) deserializer;
-    (void) type;
-
-    if(caret.isAtText("null", true)){
-      return AbstractObjectWrapper(T::Class::getType());
-    } else {
-      return AbstractObjectWrapper(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseUnsignedInt()), T::ObjectWrapper::Class::getType());
-    }
+    typename T::ObjectType::ValueType value;
+    Utils::readPrimitive(caret, value, bsonTypeCode);
+    return AbstractObjectWrapper(T::ObjectType::createAbstract(value), T::ObjectWrapper::Class::getType());
 
   }
-
-  static AbstractObjectWrapper deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
-  static AbstractObjectWrapper deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
   static AbstractObjectWrapper deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
