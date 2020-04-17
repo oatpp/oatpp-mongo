@@ -96,10 +96,9 @@ public:
 public:
   typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const, v_char8 bsonTypeCode);
 private:
-  static void skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose);
-  static void skipString(oatpp::parser::Caret& caret);
-  static void skipToken(oatpp::parser::Caret& caret);
-  static void skipValue(oatpp::parser::Caret& caret);
+  static void skipCString(parser::Caret& caret);
+  static void skipSizedElement(parser::Caret& caret, v_int32 additionalBytes = 0);
+  static void skipElement(parser::Caret& caret, v_char8 bsonTypeCode);
 private:
 
   template<class T>

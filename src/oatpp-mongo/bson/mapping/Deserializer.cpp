@@ -68,85 +68,53 @@ void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& cla
   }
 }
 
-void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose){
-
-  p_char8 data = caret.getData();
-  v_buff_size size = caret.getDataSize();
-  v_buff_size pos = caret.getPosition();
-  v_int32 scopeCounter = 0;
-
-  bool isInString = false;
-
-  while(pos < size){
-    v_char8 a = data[pos];
-    if(a == charOpen){
-      if(!isInString){
-        scopeCounter ++;
-      }
-    } else if(a == charClose){
-      if(!isInString){
-        scopeCounter --;
-        if(scopeCounter == 0){
-          caret.setPosition(pos + 1);
-          return;
-        }
-      }
-    } else if(a == '"') {
-      isInString = !isInString;
-    } else if(a == '\\'){
-      pos ++;
-    }
-
-    pos ++;
-
+void Deserializer::skipCString(parser::Caret& caret) {
+  caret.findChar(0);
+  if(!caret.canContinueAtChar(0, 1)) {
+    caret.setError("[oatpp::mongo::bson::mapping::Deserializer::skipCString()]: Error. Unterminated CString.");
   }
 }
 
-void Deserializer::skipString(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
-  v_buff_size size = caret.getDataSize();
-  v_buff_size pos = caret.getPosition();
-  v_int32 scopeCounter = 0;
-  while(pos < size){
-    v_char8 a = data[pos];
-    if(a == '"'){
-      scopeCounter ++;
-      if(scopeCounter == 2) {
-        caret.setPosition(pos + 1);
-        return;
-      }
-    } else if(a == '\\'){
-      pos ++;
-    }
-    pos ++;
+void Deserializer::skipSizedElement(parser::Caret& caret, v_int32 additionalBytes) {
+  v_int32 size = Utils::readInt32(caret);
+  if (size + caret.getPosition() + additionalBytes > caret.getDataSize() || size + additionalBytes < 0) {
+    caret.setError("[oatpp::mongo::bson::mapping::Deserializer::skipSizedElement()]: Error. Invalid element size.");
   }
+  caret.inc(size + additionalBytes);
 }
 
-void Deserializer::skipToken(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
-  v_buff_size size = caret.getDataSize();
-  v_buff_size pos = caret.getPosition();
-  while(pos < size){
-    v_char8 a = data[pos];
-    if(a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\b' || a == '\f' ||
-       a == '}' || a == ',' || a == ']') {
-      caret.setPosition(pos);
+void Deserializer::skipElement(parser::Caret& caret, v_char8 bsonTypeCode) {
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::DOUBLE: caret.inc(8); break;
+    case TypeCode::STRING: skipSizedElement(caret); break;
+    case TypeCode::DOCUMENT_EMBEDDED: skipSizedElement(caret, -4); break;
+    case TypeCode::DOCUMENT_ARRAY: skipSizedElement(caret, -4); break;
+    case TypeCode::BINARY: skipSizedElement(caret, 1); break;
+    case TypeCode::UNDEFINED: break;
+    case TypeCode::OBJECT_ID: caret.inc(12); break;
+    case TypeCode::BOOLEAN: caret.inc();
+    case TypeCode::DATE_TIME: caret.inc(8);
+    case TypeCode::NULL_VALUE: break;
+    case TypeCode::REGEXP: skipCString(caret); skipCString(caret); break;
+    case TypeCode::BD_POINTER: skipSizedElement(caret, 12); break;
+    case TypeCode::JAVASCRIPT_CODE: skipSizedElement(caret); break;
+    case TypeCode::SYMBOL: skipSizedElement(caret); break;
+    case TypeCode::JAVASCRIPT_CODE_WS: skipSizedElement(caret, -4); break;
+    case TypeCode::INT_32: caret.inc(4); break;
+    case TypeCode::TIMESTAMP: caret.inc(8); break;
+    case TypeCode::INT_64: caret.inc(8); break;
+    case TypeCode::DECIMAL_128: caret.inc(16); break;
+
+    case TypeCode::MIN_KEY: break;
+    case TypeCode::MAX_KEY: break;
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::skipElement()]: Error. Unknown element type-code.");
       return;
-    }
-    pos ++;
   }
-}
 
-void Deserializer::skipValue(oatpp::parser::Caret& caret){
-  if(caret.isAtChar('{')){
-    skipScope(caret, '{', '}');
-  } else if(caret.isAtChar('[')){
-    skipScope(caret, '[', ']');
-  } else if(caret.isAtChar('"')){
-    skipString(caret);
-  } else {
-    skipToken(caret);
-  }
 }
 
 data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Deserializer* deserializer,
@@ -229,8 +197,8 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
     case TypeCode::DOCUMENT_ARRAY:
     {
 
-      v_int32 docSize = Utils::readInt32(caret, Utils::BO_TYPE::UNKNOWN);
-      if (docSize - 4 + caret.getPosition() > caret.getDataSize()) {
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 4) {
         caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Invalid document size.");
         return nullptr;
       }
@@ -306,8 +274,8 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
     case TypeCode::DOCUMENT_ARRAY:
     {
 
-      v_int32 docSize = Utils::readInt32(caret, Utils::BO_TYPE::UNKNOWN);
-      if (docSize - 4 + caret.getPosition() > caret.getDataSize()) {
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 4) {
         caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeFieldsMap()]: Error. Invalid document size.");
         return nullptr;
       }
@@ -382,8 +350,8 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
     case TypeCode::DOCUMENT_ARRAY:
     {
 
-      v_int32 docSize = Utils::readInt32(caret, Utils::BO_TYPE::UNKNOWN);
-      if (docSize - 4 + caret.getPosition() > caret.getDataSize()) {
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 4) {
         caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObject()]: Error. Invalid document size.");
         return nullptr;
       }
@@ -410,7 +378,12 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
           field->set(object.get(), deserializer->deserialize(innerCaret, field->type, valueType));
 
         } else if (deserializer->getConfig()->allowUnknownFields) {
-          // TODO - skip value; <---------------------------------------------------------------------------------------!!!!!!
+          skipElement(innerCaret, valueType);
+          if(innerCaret.hasError()){
+            caret.inc(innerCaret.getPosition());
+            caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+            return nullptr;
+          }
         } else {
           caret.inc(innerCaret.getPosition());
           caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObject()]: Error. Unknown field");
