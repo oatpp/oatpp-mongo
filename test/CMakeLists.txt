@@ -1,6 +1,26 @@
 add_executable(module-tests
+        oatpp-mongo/bson/BooleanTest.cpp
+        oatpp-mongo/bson/BooleanTest.hpp
+        oatpp-mongo/bson/FloatTest.cpp
+        oatpp-mongo/bson/FloatTest.hpp
+        oatpp-mongo/bson/Int8Test.cpp
+        oatpp-mongo/bson/Int8Test.hpp
+        oatpp-mongo/bson/Int16Test.cpp
+        oatpp-mongo/bson/Int16Test.hpp
+        oatpp-mongo/bson/Int32Test.cpp
+        oatpp-mongo/bson/Int32Test.hpp
+        oatpp-mongo/bson/Int64Test.cpp
+        oatpp-mongo/bson/Int64Test.hpp
+        oatpp-mongo/bson/ListTest.cpp
+        oatpp-mongo/bson/ListTest.hpp
+        oatpp-mongo/bson/MapTest.cpp
+        oatpp-mongo/bson/MapTest.hpp
+        oatpp-mongo/bson/ObjectTest.cpp
+        oatpp-mongo/bson/ObjectTest.hpp
+        oatpp-mongo/bson/StringTest.cpp
+        oatpp-mongo/bson/StringTest.hpp
         oatpp-mongo/tests.cpp
-        oatpp-mongo/DTO.hpp)
+)
 
 set_target_properties(module-tests PROPERTIES
         CXX_STANDARD 11

@@ -23,42 +23,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_app_DTOs_hpp
-#define oatpp_test_web_app_DTOs_hpp
+#ifndef oatpp_mongo_test_bson_Int64Test_hpp
+#define oatpp_mongo_test_bson_Int64Test_hpp
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace mongocxxmapper {
+namespace oatpp { namespace mongo { namespace test { namespace bson {
 
-#include OATPP_CODEGEN_BEGIN(DTO)
-
-class SubDto : public oatpp::data::mapping::type::Object {
-  DTO_INIT(SubDto, Object);
-  DTO_FIELD(String, sub);
+class Int64Test : public oatpp::test::UnitTest {
+public:
+  Int64Test() : UnitTest("TEST[oatpp-mongo::bson::Int64Test]") {}
+  void onRun() override;
 };
 
-class TestDto : public oatpp::data::mapping::type::Object {
+}}}}
 
-  DTO_INIT(TestDto, Object)
-
-  DTO_FIELD(String, testValue);
-  DTO_FIELD(String, nullValue);
-  DTO_FIELD(Int8, i8Value);
-  DTO_FIELD(Int16, i16Value);
-  DTO_FIELD(Int32, i32Value);
-  DTO_FIELD(Int64, i64Value);
-  DTO_FIELD(Boolean, boolValue);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
-  DTO_FIELD(List<String>::ObjectWrapper, testList);
-  DTO_FIELD(List<Fields<String>::ObjectWrapper>::ObjectWrapper, testMapList);
-  DTO_FIELD(Fields<Fields<String>::ObjectWrapper>::ObjectWrapper, testMapMap);
-  DTO_FIELD(SubDto::ObjectWrapper, subObject);
-
-};
-
-#include OATPP_CODEGEN_END(DTO)
-
-}}}
-
-#endif /* oatpp_test_web_app_DTOs_hpp */
+#endif /* oatpp_mongo_test_bson_Int64Test_hpp */
