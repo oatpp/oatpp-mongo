@@ -40,7 +40,7 @@ namespace {
 /* Complete object */
 class Obj : public oatpp::Object {
 
-DTO_INIT(Obj, Object)
+  DTO_INIT(Obj, Object)
 
   DTO_FIELD(Int8, f1) = std::numeric_limits<v_int8>::max();
   DTO_FIELD(Int8, f2) = 8;
@@ -52,7 +52,7 @@ DTO_INIT(Obj, Object)
 /* No first field */
 class Sub1 : public oatpp::Object {
 
-DTO_INIT(Sub1, Object)
+  DTO_INIT(Sub1, Object)
 
   DTO_FIELD(Int8, f2);
   DTO_FIELD(Int8, f3);
@@ -63,7 +63,7 @@ DTO_INIT(Sub1, Object)
 /* No second field */
 class Sub2 : public oatpp::Object {
 
-DTO_INIT(Sub2, Object)
+  DTO_INIT(Sub2, Object)
 
   DTO_FIELD(Int8, f1);
   DTO_FIELD(Int8, f3);
@@ -74,7 +74,7 @@ DTO_INIT(Sub2, Object)
 /* No null field */
 class Sub3 : public oatpp::Object {
 
-DTO_INIT(Sub3, Object)
+  DTO_INIT(Sub3, Object)
 
   DTO_FIELD(Int8, f1);
   DTO_FIELD(Int8, f2);
@@ -85,7 +85,7 @@ DTO_INIT(Sub3, Object)
 /* No last field */
 class Sub4 : public oatpp::Object {
 
-DTO_INIT(Sub4, Object)
+  DTO_INIT(Sub4, Object)
 
   DTO_FIELD(Int8, f1);
   DTO_FIELD(Int8, f2);

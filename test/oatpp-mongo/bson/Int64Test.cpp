@@ -31,6 +31,8 @@
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
+#include <vector>
+
 namespace oatpp { namespace mongo { namespace test { namespace bson {
 
 namespace {
