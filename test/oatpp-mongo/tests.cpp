@@ -43,7 +43,7 @@
 namespace {
 
 void runTests() {
-  
+
   OATPP_RUN_TEST(oatpp::mongo::test::bson::StringTest);
 
   OATPP_RUN_TEST(oatpp::mongo::test::bson::Int8Test);

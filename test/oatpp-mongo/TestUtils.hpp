@@ -23,20 +23,27 @@
  *
  ***************************************************************************/
 
-#include "ObjectTest.hpp"
-
-#include "oatpp-mongo/TestUtils.hpp"
-#include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
+#ifndef oatpp_mongo_test_Utils_hpp
+#define oatpp_mongo_test_Utils_hpp
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/macro/codegen.hpp"
 
-namespace oatpp { namespace mongo { namespace test { namespace bson {
+namespace oatpp { namespace mongo { namespace test {
 
+class TestUtils {
+public:
+  typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
+public:
 
-void ObjectTest::onRun() {
+  static void writeBinary(const void* voiddata, v_int32 length, const char* tag = "");
+  static void writeBinary(const oatpp::String& data, const char* tag = "");
 
+  static void hardcodeBinary(const oatpp::String& data, const oatpp::String& varname);
 
-}
+  static oatpp::String writeJsonToBsonCXX(const AbstractObjectWrapper& polymorph);
 
-}}}}
+};
+
+}}}
+
+#endif //oatpp_mongo_test_Utils_hpp
