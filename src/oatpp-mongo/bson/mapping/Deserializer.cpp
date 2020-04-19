@@ -210,7 +210,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
 
       Type* itemType = *type->params.begin();
-
+      v_int32 expectedIndex = 0;
       while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
         v_char8 valueTypeCode;
@@ -221,6 +221,14 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
           return nullptr;
         }
 
+        bool success;
+        v_int32 keyIntValue = utils::conversion::strToInt32(key, success);
+        if(!success || keyIntValue != expectedIndex) {
+          caret.inc(innerCaret.getPosition());
+          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Array invalid index value. Looks like it's not an array.");
+          return nullptr;
+        }
+
         auto item = deserializer->deserialize(innerCaret, itemType, valueTypeCode);
         if(innerCaret.hasError()){
           caret.inc(innerCaret.getPosition());
@@ -228,6 +236,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         }
 
         list->addPolymorphicItem(item);
+        ++ expectedIndex;
 
       }
 

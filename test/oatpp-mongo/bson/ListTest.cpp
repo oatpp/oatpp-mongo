@@ -35,7 +35,6 @@ namespace oatpp { namespace mongo { namespace test { namespace bson {
 
 namespace {
 
-
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /* Complete object */
@@ -114,7 +113,7 @@ class Sub4 : public oatpp::Object {
 
 #include OATPP_CODEGEN_END(DTO)
 
-bool cmpLists(const List<String>::ObjectWrapper& a, const List<String>::ObjectWrapper& b, v_int32 expectedCount) {
+bool cmpLists(const oatpp::List<oatpp::String>::ObjectWrapper& a, const oatpp::List<oatpp::String>::ObjectWrapper& b, v_int32 expectedCount) {
 
   if(a->count() != b->count() || a->count() != expectedCount) {
     return false;
@@ -229,7 +228,6 @@ void ListTest::onRun() {
     oatpp::String s0 = "Hello";
     oatpp::String s1 = "World!";
     oatpp::String s2 = "Oat++ & Mongo";
-
 
     auto list = oatpp::List<oatpp::String>::createShared();
     list->pushBack(s0);
