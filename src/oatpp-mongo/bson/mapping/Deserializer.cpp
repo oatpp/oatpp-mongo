@@ -87,28 +87,28 @@ void Deserializer::skipElement(parser::Caret& caret, v_char8 bsonTypeCode) {
 
   switch(bsonTypeCode) {
 
-    case TypeCode::DOUBLE: caret.inc(8); break;
-    case TypeCode::STRING: skipSizedElement(caret); break;
-    case TypeCode::DOCUMENT_EMBEDDED: skipSizedElement(caret, -4); break;
-    case TypeCode::DOCUMENT_ARRAY: skipSizedElement(caret, -4); break;
-    case TypeCode::BINARY: skipSizedElement(caret, 1); break;
-    case TypeCode::UNDEFINED: break;
-    case TypeCode::OBJECT_ID: caret.inc(12); break;
-    case TypeCode::BOOLEAN: caret.inc();
-    case TypeCode::DATE_TIME: caret.inc(8);
-    case TypeCode::NULL_VALUE: break;
-    case TypeCode::REGEXP: skipCString(caret); skipCString(caret); break;
-    case TypeCode::BD_POINTER: skipSizedElement(caret, 12); break;
-    case TypeCode::JAVASCRIPT_CODE: skipSizedElement(caret); break;
-    case TypeCode::SYMBOL: skipSizedElement(caret); break;
+    case TypeCode::DOUBLE: caret.inc(8);                            break;
+    case TypeCode::STRING: skipSizedElement(caret);                 break;
+    case TypeCode::DOCUMENT_EMBEDDED: skipSizedElement(caret, -4);  break;
+    case TypeCode::DOCUMENT_ARRAY: skipSizedElement(caret, -4);     break;
+    case TypeCode::BINARY: skipSizedElement(caret, 1);              break;
+    case TypeCode::UNDEFINED:                                       break;
+    case TypeCode::OBJECT_ID: caret.inc(12);                        break;
+    case TypeCode::BOOLEAN: caret.inc();                            break;
+    case TypeCode::DATE_TIME: caret.inc(8);                         break;
+    case TypeCode::NULL_VALUE:                                      break;
+    case TypeCode::REGEXP: skipCString(caret); skipCString(caret);  break;
+    case TypeCode::BD_POINTER: skipSizedElement(caret, 12);         break;
+    case TypeCode::JAVASCRIPT_CODE: skipSizedElement(caret);        break;
+    case TypeCode::SYMBOL: skipSizedElement(caret);                 break;
     case TypeCode::JAVASCRIPT_CODE_WS: skipSizedElement(caret, -4); break;
-    case TypeCode::INT_32: caret.inc(4); break;
-    case TypeCode::TIMESTAMP: caret.inc(8); break;
-    case TypeCode::INT_64: caret.inc(8); break;
-    case TypeCode::DECIMAL_128: caret.inc(16); break;
+    case TypeCode::INT_32: caret.inc(4);                            break;
+    case TypeCode::TIMESTAMP: caret.inc(8);                         break;
+    case TypeCode::INT_64: caret.inc(8);                            break;
+    case TypeCode::DECIMAL_128: caret.inc(16);                      break;
 
-    case TypeCode::MIN_KEY: break;
-    case TypeCode::MAX_KEY: break;
+    case TypeCode::MIN_KEY:                                         break;
+    case TypeCode::MAX_KEY:                                         break;
 
     default:
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::skipElement()]: Error. Unknown element type-code.");
@@ -210,7 +210,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
 
       Type* itemType = *type->params.begin();
-
+      v_int32 expectedIndex = 0;
       while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
         v_char8 valueTypeCode;
@@ -221,6 +221,14 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
           return nullptr;
         }
 
+        bool success;
+        v_int32 keyIntValue = utils::conversion::strToInt32(key, success);
+        if(!success || keyIntValue != expectedIndex) {
+          caret.inc(innerCaret.getPosition());
+          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Array invalid index value. Looks like it's not an array.");
+          return nullptr;
+        }
+
         auto item = deserializer->deserialize(innerCaret, itemType, valueTypeCode);
         if(innerCaret.hasError()){
           caret.inc(innerCaret.getPosition());
@@ -228,6 +236,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         }
 
         list->addPolymorphicItem(item);
+        ++ expectedIndex;
 
       }
 

@@ -39,7 +39,7 @@ private:
 
   template<typename ValType, typename DocValType >
   static bool checkLimitsAndAssign(ValType& value, DocValType docValue, bool check = true) {
-    if(check && docValue >= std::numeric_limits<ValType>::min() && docValue <= std::numeric_limits<ValType>::max()) {
+    if(check && docValue >= std::numeric_limits<ValType>::lowest() && docValue <= std::numeric_limits<ValType>::max()) {
       value = docValue;
       return true;
     }
