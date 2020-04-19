@@ -107,8 +107,8 @@ oatpp::String TestUtils::writeJsonToBsonCXX(const AbstractObjectWrapper& polymor
   oatpp::parser::json::mapping::ObjectMapper jsonMapper;
   oatpp::String jsonStr = jsonMapper.writeToString(polymorph);
 
-  auto strv = bsoncxx::stdx::string_view(jsonStr->c_str());
-  bsoncxx::document::view view = bsoncxx::from_json(strv);
+  bsoncxx::document::value bsonObj = bsoncxx::from_json(jsonStr->c_str());
+  auto view = bsonObj.view();
 
   return oatpp::String((const char*)view.data(), view.length(), true);
 
