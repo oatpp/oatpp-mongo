@@ -54,6 +54,17 @@ Utils::BO_TYPE Utils::detectFloatBO() {
   return result;
 }
 
+oatpp::String Utils::readCString(parser::Caret& caret) {
+  auto label = caret.putLabel();
+  if(caret.findChar(0)) {
+    label.end();
+    caret.inc();
+    return label.toString();
+  }
+  caret.setError("[oatpp::mongo::bson::Utils::readCString()]: Error. Unterminated cstring.");
+  return nullptr;
+}
+
 void Utils::writeKey(data::stream::ConsistentOutputStream *stream, TypeCode typeCode, const data::share::StringKeyLabel &key) {
   if (key) {
     stream->writeCharSimple(typeCode);

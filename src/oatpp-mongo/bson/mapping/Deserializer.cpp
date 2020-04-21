@@ -166,6 +166,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
       v_int32 size = Utils::readInt32(caret);
       if (size + caret.getPosition() > caret.getDataSize() || size < 1) {
         caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeString()]: Error. Invalid string size.");
+        return nullptr;
       }
       auto label = caret.putLabel();
       caret.inc(size);
@@ -233,6 +234,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         if(innerCaret.hasError()){
           caret.inc(innerCaret.getPosition());
           caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+          return nullptr;
         }
 
         list->addPolymorphicItem(item);

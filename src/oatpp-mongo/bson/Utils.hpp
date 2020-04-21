@@ -70,6 +70,8 @@ public:
 
 public:
 
+  static oatpp::String readCString(parser::Caret& caret);
+
   static void writeKey(data::stream::ConsistentOutputStream *stream, TypeCode typeCode, const data::share::StringKeyLabel &key);
   static oatpp::String readKey(parser::Caret& caret, v_char8& typeCode);
 
