@@ -19,6 +19,8 @@ add_executable(module-tests
         oatpp-mongo/bson/ObjectTest.hpp
         oatpp-mongo/bson/StringTest.cpp
         oatpp-mongo/bson/StringTest.hpp
+        oatpp-mongo/bson/InlineDocumentTest.cpp
+        oatpp-mongo/bson/InlineDocumentTest.hpp
         oatpp-mongo/TestUtils.cpp
         oatpp-mongo/TestUtils.hpp
         oatpp-mongo/tests.cpp

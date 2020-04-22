@@ -57,6 +57,9 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Deserializer::deserializeFieldsMap);
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
 
+  setDeserializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Deserializer::deserializeInlineDocs);
+  setDeserializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Deserializer::deserializeInlineDocs);
+
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
@@ -178,6 +181,47 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeString()]: Error. Type-code doesn't match string.");
       return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
 
+  }
+
+}
+
+data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(Deserializer* deserializer,
+                                                                               parser::Caret& caret,
+                                                                               const Type* const type,
+                                                                               v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return AbstractObjectWrapper(type);
+
+    case TypeCode::DOCUMENT_EMBEDDED:
+    case TypeCode::DOCUMENT_ARRAY:
+    {
+
+      auto label = caret.putLabel();
+
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 5) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeInlineDocs()]: Error. Invalid document size.");
+        return nullptr;
+      }
+
+      caret.inc(docSize - 4);
+      label.end();
+
+      if(bsonTypeCode == DOCUMENT_ARRAY) {
+        return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineArray::Class::getType());
+      }
+
+      return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineDocument::Class::getType());
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Invalid type code.");
+      return nullptr;
   }
 
 }

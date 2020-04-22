@@ -25,10 +25,9 @@
 
 #include "Serializer.hpp"
 
-#include "oatpp/parser/json/Utils.hpp" // delete
-
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
@@ -59,6 +58,9 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Serializer::serializeFieldsMap);
+
+  setSerializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Serializer::serializeInlineDocument);
+  setSerializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Serializer::serializeInlineArray);
 
 }
 
@@ -96,6 +98,52 @@ void Serializer::serializeString(Serializer* serializer,
     bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   }
 
+}
+
+void Serializer::serializeInlineDocs(Serializer* serializer,
+                                     data::stream::ConsistentOutputStream* stream,
+                                     const data::share::StringKeyLabel& key,
+                                     TypeCode typeCode,
+                                     const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  if(polymorph) {
+
+    auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
+    if(str->getSize() < 5) {
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeInlineDocs()]: Error. Invalid inline object size.");
+    }
+
+    oatpp::parser::Caret caret(str->getData(), str->getSize());
+    v_int32 inlineSize = bson::Utils::readInt32(caret);
+
+    if(inlineSize != str->getSize()) {
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeInlineDocs()]: Error. Invalid inline object.");
+    }
+
+    bson::Utils::writeKey(stream, typeCode, key);
+    stream->writeSimple(str->getData(), str->getSize());
+
+  } else if(key) {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+  } else {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeInlineDocs()]: Error. null object with null key.");
+  }
+}
+
+void Serializer::serializeInlineDocument(Serializer* serializer,
+                                         data::stream::ConsistentOutputStream* stream,
+                                         const data::share::StringKeyLabel& key,
+                                         const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  serializeInlineDocs(serializer, stream, key, TypeCode::DOCUMENT_EMBEDDED, polymorph);
+}
+
+void Serializer::serializeInlineArray(Serializer* serializer,
+                                      data::stream::ConsistentOutputStream* stream,
+                                      const data::share::StringKeyLabel& key,
+                                      const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  serializeInlineDocs(serializer, stream, key, TypeCode::DOCUMENT_ARRAY, polymorph);
 }
 
 void Serializer::serializeList(Serializer* serializer,

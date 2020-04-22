@@ -8,14 +8,17 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-mongo/bson/mapping/ObjectMapper.hpp
         oatpp-mongo/bson/Utils.cpp
         oatpp-mongo/bson/Utils.hpp
+        oatpp-mongo/bson/Types.cpp
         oatpp-mongo/bson/Types.hpp
+        oatpp-mongo/driver/command/Delete.cpp
+        oatpp-mongo/driver/command/Delete.hpp
+        oatpp-mongo/driver/command/Find.cpp
+        oatpp-mongo/driver/command/Find.hpp
         oatpp-mongo/driver/command/Insert.cpp
         oatpp-mongo/driver/command/Insert.hpp
         oatpp-mongo/driver/command/Miscellaneous.hpp
         oatpp-mongo/driver/command/Update.cpp
         oatpp-mongo/driver/command/Update.hpp
-        oatpp-mongo/driver/command/Delete.cpp
-        oatpp-mongo/driver/command/Delete.hpp
         oatpp-mongo/driver/wire/Message.cpp
         oatpp-mongo/driver/wire/Message.hpp
         oatpp-mongo/driver/wire/Header.cpp

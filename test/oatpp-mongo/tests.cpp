@@ -31,20 +31,20 @@
 #include "oatpp-mongo/bson/Int64Test.hpp"
 #include "oatpp-mongo/bson/FloatTest.hpp"
 #include "oatpp-mongo/bson/BooleanTest.hpp"
-
 #include "oatpp-mongo/bson/ListTest.hpp"
 #include "oatpp-mongo/bson/MapTest.hpp"
 #include "oatpp-mongo/bson/ObjectTest.hpp"
+#include "oatpp-mongo/bson/InlineDocumentTest.hpp"
 
 #include "oatpp-test/UnitTest.hpp"
 
 #include <iostream>
 
-
 #include "./TestUtils.hpp"
 
 #include "oatpp-mongo/driver/command/Update.hpp"
 #include "oatpp-mongo/driver/command/Insert.hpp"
+#include "oatpp-mongo/driver/command/Find.hpp"
 
 #include "oatpp-mongo/driver/wire/Header.hpp"
 #include "oatpp-mongo/driver/wire/Message.hpp"
@@ -104,7 +104,6 @@ class Obj2 : public oatpp::Object {
 
   DTO_INIT(Obj2, Object)
 
-  DTO_FIELD(String, _id);// = "my-string-id";
   DTO_FIELD(String, hello) = "Hello-World!!!";
   DTO_FIELD(String, mongo) = "MongoDB!!!";
 
@@ -148,48 +147,6 @@ class Result : public oatpp::Object {
 
 typedef oatpp::data::stream::ConsistentOutputStream ConsistentOutputStream;
 
-/*
-void testWire() {
-
-  oatpp::mongo::bson::mapping::ObjectMapper objectMapper;
-
-  auto connectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", 27017);
-
-  auto connection = connectionProvider->getConnection();
-
-  InsertRequest request {0, "admin.my.collection"};
-
-  oatpp::data::stream::BufferOutputStream requestStream;
-  oatpp::data::stream::BufferOutputStream requestInnerStream;
-
-  request.writeToStream(&requestInnerStream);
-  objectMapper.write(&requestInnerStream, Obj::createShared());
-
-  auto requestData = requestInnerStream.toString();
-
-  Header header {16 + (v_int32)requestData->getSize(), 0, 0, 2002};
-
-  header.writeToStream(&requestStream);
-  requestStream << requestData;
-
-  auto sendData = requestStream.toString();
-  auto wres = connection->writeSimple(sendData->getData(), sendData->getSize());
-
-  OATPP_LOGD("AAA", "sent %d", wres);
-
-  v_char8 receiveBuffer[32768];
-
-  auto rres = connection->readSimple(receiveBuffer, 32768);
-
-  OATPP_LOGD("AAA", "read %d", rres);
-
-  if(rres > 0) {
-    oatpp::mongo::test::TestUtils::writeBinary(receiveBuffer, rres, "result");
-  }
-
-}
-*/
-
 void testMsg() {
 
   oatpp::parser::json::mapping::ObjectMapper jsonMapper;
@@ -207,11 +164,10 @@ void testMsg() {
 
   ///////
 
-  oatpp::mongo::driver::command::Insert insert("admin", "my.collection");
+  oatpp::mongo::driver::command::Find find("admin", "my.collection");
 
-  insert.addDocument(objectMapper.writeToString(Obj2::createShared()));
 
-  insert.writeToStream(&stream, &commandMapper, 1);
+  find.writeToStream(&stream, &commandMapper, 1);
 
   ///////
 
@@ -265,21 +221,22 @@ void testMsg() {
 
 void runTests() {
 
-  //testWire();
-  testMsg();
+  //testMsg();
 
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::StringTest);
-//
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int8Test);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int16Test);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int32Test);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int64Test);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::FloatTest);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::BooleanTest);
-//
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::ListTest);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::MapTest);
-//  OATPP_RUN_TEST(oatpp::mongo::test::bson::ObjectTest);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::StringTest);
+
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int8Test);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int16Test);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int32Test);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::Int64Test);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::FloatTest);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::BooleanTest);
+
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::ListTest);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::MapTest);
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::ObjectTest);
+
+  OATPP_RUN_TEST(oatpp::mongo::test::bson::InlineDocumentTest);
 
 }
 

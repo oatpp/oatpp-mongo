@@ -148,6 +148,38 @@ enum TypeCode : v_char8 {
 
 };
 
+typedef oatpp::data::mapping::type::Type Type;
+typedef oatpp::data::mapping::type::ClassId ClassId;
+
+namespace __class {
+
+  class InlineDocument {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
+  class InlineArray {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
+}
+
+typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineDocument> InlineDocument;
+typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineArray> InlineArray;
+
 }}}
 
 #endif // oatpp_mongo_bson_Types_hpp
