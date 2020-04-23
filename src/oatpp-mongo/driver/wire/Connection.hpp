@@ -23,25 +23,27 @@
  *
  ***************************************************************************/
 
-#include "Header.hpp"
+#ifndef oatpp_mongo_driver_wire_Connection_hpp
+#define oatpp_mongo_driver_wire_Connection_hpp
 
-#include "oatpp-mongo/bson/Utils.hpp"
+#include "./Message.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
-void Header::writeToStream(data::stream::ConsistentOutputStream* stream) {
-  bson::Utils::writeInt32(stream, messageLength);
-  bson::Utils::writeInt32(stream, requestId);
-  bson::Utils::writeInt32(stream, responseTo);
-  bson::Utils::writeInt32(stream, opCode);
-}
+class Connection {
+private:
+  std::shared_ptr<data::stream::IOStream> m_connection;
+public:
 
-bool Header::readFromCaret(parser::Caret& caret) {
-  messageLength = bson::Utils::readInt32(caret);
-  requestId = bson::Utils::readInt32(caret);
-  responseTo = bson::Utils::readInt32(caret);
-  opCode = bson::Utils::readInt32(caret);
-  return !caret.hasError();
-}
+  Connection(const std::shared_ptr<data::stream::IOStream>& connection);
+
+  v_io_size write(const Message& message);
+  v_io_size read(Message& message);
+
+
+};
 
 }}}}
+
+#endif // oatpp_mongo_driver_wire_Connection_hpp

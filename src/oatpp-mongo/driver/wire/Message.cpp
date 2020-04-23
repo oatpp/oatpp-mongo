@@ -27,154 +27,34 @@
 
 #include "oatpp-mongo/bson/Utils.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Message
+MessageHeader::MessageHeader(v_int32 length, v_int32 msgOpCode)
+  : messageLength(length)
+  , requestId(0)
+  , responseTo(0)
+  , opCode(msgOpCode)
+{}
 
-void Message::writeToStream(data::stream::ConsistentOutputStream* stream) {
-
-  v_int32 flags = 0;
-
-  if(checksumPresent) flags |= FLAG_CHECKSUM_PRESENT;
-  if(moreToCome) flags |= FLAG_MORE_TO_COME;
-  if(exhaustAllowed) flags |= FLAG_EXHAUST_ALLOWED;
-
-  bson::Utils::writeInt32(stream, flags);
-
-  for(auto& section : sections) {
-    section->writeToStream(stream);
-  }
-
+void MessageHeader::writeToStream(data::stream::ConsistentOutputStream* stream) const {
+  bson::Utils::writeInt32(stream, messageLength);
+  bson::Utils::writeInt32(stream, requestId);
+  bson::Utils::writeInt32(stream, responseTo);
+  bson::Utils::writeInt32(stream, opCode);
 }
 
-bool Message::readFromCaret(parser::Caret& caret) {
-
-  sections.clear();
-
-  v_int32 flags = bson::Utils::readInt32(caret);
-
-  checksumPresent = (flags & FLAG_CHECKSUM_PRESENT) > 0;
-  moreToCome = (flags & FLAG_MORE_TO_COME) > 0;
-  exhaustAllowed = (flags & FLAG_EXHAUST_ALLOWED) > 0;
-
-  while(caret.canContinue()) {
-
-    v_uint8 sectionType = (v_uint8) *caret.getCurrData();
-    std::shared_ptr<Section> section;
-
-    switch(sectionType) {
-      case Section::TYPE_BODY:
-        section = std::make_shared<BodySection>();
-        break;
-      case Section::TYPE_DOCUMENT_SEQUENCE:
-        section = std::make_shared<DocumentSequenceSection>(nullptr);
-        break;
-      default:
-        caret.setError("[oatpp::mongo::driver::wire::Message::readFromCaret()]: Error. Invalid section type!");
-        return false;
-    }
-
-    section->readFromCaret(caret);
-    sections.push_back(section);
-
-  }
-
+bool MessageHeader::readFromCaret(parser::Caret& caret) {
+  messageLength = bson::Utils::readInt32(caret);
+  requestId = bson::Utils::readInt32(caret);
+  responseTo = bson::Utils::readInt32(caret);
+  opCode = bson::Utils::readInt32(caret);
   return !caret.hasError();
-
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BodySection
 
-void BodySection::writeToStream(data::stream::ConsistentOutputStream* stream) {
-  stream->writeCharSimple(TYPE_BODY);
-  *stream << document;
-}
-
-bool BodySection::readFromCaret(parser::Caret& caret) {
-  if(caret.canContinueAtChar(TYPE_BODY, 1)) {
-    auto label = caret.putLabel();
-    v_int64 docSize = bson::Utils::readInt32(caret);
-    if(docSize < 5 || docSize - 4 + (v_int64) caret.getPosition() > (v_int64) caret.getDataSize()) {
-      caret.setError("[oatpp::mongo::driver::wire::BodySection::readFromCaret()]: Error. Invalid Document size.");
-      return false;
-    }
-    caret.inc((v_buff_size) docSize - 4);
-    document = label.toString();
-    return true;
-  }
-  caret.setError("[oatpp::mongo::driver::wire::BodySection::readFromCaret()]: Error. Invalid section type.");
-  return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DocumentSequenceSection
-
-void DocumentSequenceSection::writeToStream(data::stream::ConsistentOutputStream* stream) {
-
-  stream->writeCharSimple(TYPE_DOCUMENT_SEQUENCE);
-
-  v_int32 size = 4 + identifier->getSize() + 1;
-  for(auto& doc : documents) {
-    size += doc->getSize();
-  }
-  bson::Utils::writeInt32(stream, size);
-
-  *stream << identifier;
-  stream->writeCharSimple(0);
-
-  for(auto& doc : documents) {
-    *stream << doc;
-  }
-
-}
-
-bool DocumentSequenceSection::readFromCaret(parser::Caret& caret) {
-
-  if(caret.canContinueAtChar(TYPE_DOCUMENT_SEQUENCE, 1)) {
-
-    v_int64 overallSize = bson::Utils::readInt32(caret);
-    v_int64 progress = 4;
-
-    if(overallSize < 5 || overallSize - 4 + (v_int64) caret.getPosition() > (v_int64) caret.getDataSize()) {
-      caret.setError("[oatpp::mongo::driver::wire::DocumentSequenceSection::readFromCaret()]: Error. Invalid Sequence size.");
-      return false;
-    }
-
-    identifier = bson::Utils::readCString(caret);
-    if(caret.hasError()) {
-      caret.setError("[oatpp::mongo::driver::wire::DocumentSequenceSection::readFromCaret()]: Error. Invalid Sequence identifier.");
-      return false;
-    }
-
-    progress += identifier->getSize() + 1;
-
-    while(caret.canContinue() && progress < overallSize) {
-
-      auto label = caret.putLabel();
-      v_int64 docSize = bson::Utils::readInt32(caret);
-      if (docSize < 5 || docSize - 4 + (v_int64) caret.getPosition() > (v_int64) caret.getDataSize()) {
-        caret.setError("[oatpp::mongo::driver::wire::DocumentSequenceSection::readFromCaret()]: Error. Invalid Document size.");
-        return false;
-      }
-      caret.inc((v_buff_size) docSize - 4);
-      oatpp::String document = label.toString();
-      documents.push_back(document);
-
-      progress += document->getSize();
-
-    }
-
-    return !caret.hasError();
-
-  }
-
-  caret.setError("[oatpp::mongo::driver::wire::DocumentSequenceSection::readFromCaret()]: Error. Invalid section type.");
-  return false;
-
-}
+Message::Message(v_int32 length, v_int32 opCode, const oatpp::String& msgData)
+  : header(length, opCode)
+  , data(msgData)
+{}
 
 }}}}

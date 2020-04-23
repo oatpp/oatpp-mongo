@@ -23,31 +23,23 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_mongo_driver_wire_Header_hpp
-#define oatpp_mongo_driver_wire_Header_hpp
+#ifndef oatpp_mongo_driver_command_Command_hpp
+#define oatpp_mongo_driver_command_Command_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp-mongo/driver/wire/Message.hpp"
+#include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
+
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace mongo { namespace driver { namespace wire {
+namespace oatpp { namespace mongo { namespace driver { namespace command {
 
-struct Header {
+class Command {
 public:
-
-  v_int32 messageLength;
-  v_int32 requestId;
-  v_int32 responseTo;
-  v_int32 opCode;
-
+  typedef bson::mapping::ObjectMapper ObjectMapper;
 public:
-
-  void writeToStream(data::stream::ConsistentOutputStream* stream);
-  bool readFromCaret(parser::Caret& caret);
-
+  virtual wire::Message toMessage(ObjectMapper* commandObjectMapper) = 0;
 };
 
 }}}}
 
-
-#endif //oatpp_mongo_driver_wire_Header_hpp
+#endif // oatpp_mongo_driver_command_Command_hpp

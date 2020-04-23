@@ -10,6 +10,7 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-mongo/bson/Utils.hpp
         oatpp-mongo/bson/Types.cpp
         oatpp-mongo/bson/Types.hpp
+        oatpp-mongo/driver/command/Command.hpp
         oatpp-mongo/driver/command/Delete.cpp
         oatpp-mongo/driver/command/Delete.hpp
         oatpp-mongo/driver/command/Find.cpp
@@ -19,10 +20,12 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-mongo/driver/command/Miscellaneous.hpp
         oatpp-mongo/driver/command/Update.cpp
         oatpp-mongo/driver/command/Update.hpp
+        oatpp-mongo/driver/wire/Connection.cpp
+        oatpp-mongo/driver/wire/Connection.hpp
         oatpp-mongo/driver/wire/Message.cpp
         oatpp-mongo/driver/wire/Message.hpp
-        oatpp-mongo/driver/wire/Header.cpp
-        oatpp-mongo/driver/wire/Header.hpp
+        oatpp-mongo/driver/wire/OpMsg.cpp
+        oatpp-mongo/driver/wire/OpMsg.hpp
 )
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES

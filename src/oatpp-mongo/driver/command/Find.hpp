@@ -27,11 +27,11 @@
 #define oatpp_mongo_driver_command_Find_hpp
 
 #include "./Miscellaneous.hpp"
+#include "./Command.hpp"
 
-#include "oatpp-mongo/driver/wire/Message.hpp"
+#include "oatpp-mongo/driver/wire/OpMsg.hpp"
 #include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -39,7 +39,7 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Find {
+class Find : public Command {
 private:
 
   class FindDto : public oatpp::Object {
@@ -57,9 +57,7 @@ public:
 
   Find(const oatpp::String& databaseName, const oatpp::String& collectionName);
 
-  void writeToStream(data::stream::ConsistentOutputStream* stream,
-                     bson::mapping::ObjectMapper* commandObjectMapper,
-                     v_int32 requestId);
+  wire::Message toMessage(ObjectMapper* commandObjectMapper) override;
 
 };
 

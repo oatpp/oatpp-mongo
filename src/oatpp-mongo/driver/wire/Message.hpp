@@ -30,86 +30,36 @@
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/Types.hpp"
 
-#include <list>
-
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
-struct Section {
-public:
-  static constexpr v_uint8 TYPE_BODY = 0;
-  static constexpr v_uint8 TYPE_DOCUMENT_SEQUENCE = 1;
-protected:
-  v_uint8 m_type;
+struct MessageHeader {
 public:
 
-  Section(v_uint8 type)
-    : m_type(type)
-  {}
-
-  v_uint8 getType() {return m_type;}
-
-  virtual void writeToStream(data::stream::ConsistentOutputStream* stream) = 0;
-  virtual bool readFromCaret(parser::Caret& caret) = 0;
-
-};
-
-struct Message {
-public:
-
-  static constexpr v_int32 OP_CODE = 2013;
-
-  static constexpr v_int32 FLAG_CHECKSUM_PRESENT    = (1 << 0);
-  static constexpr v_int32 FLAG_MORE_TO_COME        = (1 << 1);
-  static constexpr v_int32 FLAG_EXHAUST_ALLOWED     = (1 << 16);
+  v_int32 messageLength;
+  v_int32 requestId;
+  v_int32 responseTo;
+  v_int32 opCode;
 
 public:
 
-  bool checksumPresent = false;
-  bool moreToCome = false;
-  bool exhaustAllowed = false;
+  MessageHeader() = default;
+  MessageHeader(v_int32 length, v_int32 msgOpCode);
 
-  std::list<std::shared_ptr<Section>> sections;
-
-public:
-
-  void writeToStream(data::stream::ConsistentOutputStream* stream);
+  void writeToStream(data::stream::ConsistentOutputStream* stream) const;
   bool readFromCaret(parser::Caret& caret);
 
 };
 
-struct BodySection : public Section {
-public:
+struct Message {
 
-  BodySection() : Section(TYPE_BODY) {}
+  Message() = default;
+  Message(v_int32 length, v_int32 opCode, const oatpp::String& msgData);
 
-  oatpp::String document;
-
-public:
-
-  void writeToStream(data::stream::ConsistentOutputStream* stream) override;
-  bool readFromCaret(parser::Caret& caret) override;
-
-};
-
-struct DocumentSequenceSection : public Section {
-public:
-
-  DocumentSequenceSection(const oatpp::String& sectionIdentifier) : Section(TYPE_DOCUMENT_SEQUENCE)
-    , identifier(sectionIdentifier)
-  {}
-
-  oatpp::String identifier;
-
-  std::list<oatpp::String> documents;
-
-public:
-
-  void writeToStream(data::stream::ConsistentOutputStream* stream) override;
-
-  bool readFromCaret(parser::Caret& caret) override;
-
+  MessageHeader header;
+  oatpp::String data;
 };
 
 }}}}
 
-#endif // oatpp_mongo_driver_wire_Message_hpp
+
+#endif //oatpp_mongo_driver_wire_Message_hpp

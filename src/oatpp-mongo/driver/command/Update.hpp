@@ -27,11 +27,11 @@
 #define oatpp_mongo_driver_command_Update_hpp
 
 #include "./Miscellaneous.hpp"
+#include "./Command.hpp"
 
-#include "oatpp-mongo/driver/wire/Message.hpp"
+#include "oatpp-mongo/driver/wire/OpMsg.hpp"
 #include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -39,7 +39,7 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Update {
+class Update : public Command {
 private:
 
   class UpdateDto : public oatpp::Object {
@@ -63,9 +63,7 @@ public:
 
   void addDocument(const oatpp::String& document);
 
-  void writeToStream(data::stream::ConsistentOutputStream* stream,
-                     bson::mapping::ObjectMapper* commandObjectMapper,
-                     v_int32 requestId);
+  wire::Message toMessage(ObjectMapper* commandObjectMapper) override;
 
 };
 

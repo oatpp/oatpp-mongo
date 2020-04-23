@@ -25,7 +25,7 @@
 
 #include "Insert.hpp"
 
-#include "oatpp-mongo/driver/wire/Header.hpp"
+#include "oatpp-mongo/driver/wire/Message.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
@@ -46,12 +46,9 @@ void Insert::addDocument(const oatpp::String &document) {
   m_documents->documents.push_back(document);
 }
 
-void Insert::writeToStream(data::stream::ConsistentOutputStream *stream,
-                           bson::mapping::ObjectMapper* commandObjectMapper,
-                           v_int32 requestId)
-{
+wire::Message Insert::toMessage(ObjectMapper* commandObjectMapper) {
 
-  wire::Message msg;
+  wire::OpMsg msg;
 
   auto bodySection = std::make_shared<wire::BodySection>();
   bodySection->document = commandObjectMapper->writeToString(m_insertDto);
@@ -62,10 +59,9 @@ void Insert::writeToStream(data::stream::ConsistentOutputStream *stream,
   data::stream::BufferOutputStream payloadStream;
   msg.writeToStream(&payloadStream);
 
-  wire::Header header{ 16 + (v_int32) payloadStream.getCurrentPosition(), requestId, 0, wire::Message::OP_CODE};
+  auto data = payloadStream.toString();
 
-  header.writeToStream(stream);
-  payloadStream.flushToStream(stream);
+  return wire::Message(16 + (v_int32) data->getSize(), wire::OpMsg::OP_CODE, data);
 
 }
 

@@ -46,8 +46,9 @@
 #include "oatpp-mongo/driver/command/Insert.hpp"
 #include "oatpp-mongo/driver/command/Find.hpp"
 
-#include "oatpp-mongo/driver/wire/Header.hpp"
+#include "oatpp-mongo/driver/wire/Connection.hpp"
 #include "oatpp-mongo/driver/wire/Message.hpp"
+#include "oatpp-mongo/driver/wire/OpMsg.hpp"
 
 #include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
 
@@ -160,44 +161,37 @@ void testMsg() {
   auto connectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", 27017);
   auto connection = connectionProvider->getConnection();
 
-  oatpp::data::stream::BufferOutputStream stream;
+  oatpp::mongo::driver::wire::Connection dbConnection(connection);
 
   ///////
 
   oatpp::mongo::driver::command::Find find("admin", "my.collection");
-
-
-  find.writeToStream(&stream, &commandMapper, 1);
+  auto messageIn = find.toMessage(&commandMapper);
+  messageIn.header.requestId = 1;
+  auto wres = dbConnection.write(messageIn);
 
   ///////
 
-  auto sendData = stream.toString();
-  auto wres = connection->writeSimple(sendData->getData(), sendData->getSize());
+  OATPP_LOGD("AAA", "sent %d/%d", wres, messageIn.header.messageLength);
 
-  OATPP_LOGD("AAA", "sent %d", wres);
+  oatpp::mongo::driver::wire::Message messageOut;
+  auto rres = dbConnection.read(messageOut);
 
-  v_char8 receiveBuffer[32768];
-
-  auto rres = connection->readSimple(receiveBuffer, 32768);
-
-  OATPP_LOGD("AAA", "read %d", rres);
-
-  oatpp::mongo::test::TestUtils::writeBinary(sendData, "input");
+  OATPP_LOGD("AAA", "read %d/%d", rres, messageOut.header.messageLength);
 
   if(rres > 0) {
-    oatpp::mongo::test::TestUtils::writeBinary(receiveBuffer, rres, "output");
+    oatpp::mongo::test::TestUtils::writeBinary(messageOut.data, "output");
   }
 
   {
-    oatpp::parser::Caret caret(receiveBuffer, rres);
-    oatpp::mongo::driver::wire::Header header;
-    header.readFromCaret(caret);
 
-    if(header.opCode != 2013) {
+    if(messageOut.header.opCode != 2013) {
       return;
     }
 
-    oatpp::mongo::driver::wire::Message response;
+    oatpp::parser::Caret caret(messageOut.data);
+
+    oatpp::mongo::driver::wire::OpMsg response;
     response.readFromCaret(caret);
     if(caret.hasError()) {
       OATPP_LOGE("AAA", "read response error '%s'", caret.getErrorMessage());
@@ -221,8 +215,8 @@ void testMsg() {
 
 void runTests() {
 
-  //testMsg();
-
+  testMsg();
+/*
   OATPP_RUN_TEST(oatpp::mongo::test::bson::StringTest);
 
   OATPP_RUN_TEST(oatpp::mongo::test::bson::Int8Test);
@@ -237,7 +231,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::mongo::test::bson::ObjectTest);
 
   OATPP_RUN_TEST(oatpp::mongo::test::bson::InlineDocumentTest);
-
+*/
 }
 
 }
