@@ -48,16 +48,14 @@ target_link_libraries(module-tests
         PRIVATE ${OATPP_THIS_MODULE_NAME}
 )
 
-target_include_directories(module-tests
-        PRIVATE ${LIBMONGOCXX_INCLUDE_DIRS}
-        )
-
-target_link_libraries(module-tests
-        PRIVATE ${LIBMONGOCXX_LIBRARIES}
-        )
-
-target_compile_definitions(module-tests
-        PRIVATE ${LIBMONGOCXX_DEFINITIONS}
-        )
+if (TARGET mongo::mongocxx_shared)
+    target_link_libraries(module-tests
+            PUBLIC mongo::mongocxx_shared
+    )
+elseif(TARGET mongo::mongocxx_static)
+    target_link_libraries(module-tests
+            PUBLIC mongo::mongocxx_static
+    )
+endif()
 
 add_test(module-tests module-tests)
