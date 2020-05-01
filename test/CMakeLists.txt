@@ -34,6 +34,7 @@ set_target_properties(module-tests PROPERTIES
 
 target_include_directories(module-tests
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        ${LIBMONGOCXX_INCLUDE_DIRS}
 )
 
 if(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
@@ -46,16 +47,17 @@ target_link_oatpp(module-tests)
 
 target_link_libraries(module-tests
         PRIVATE ${OATPP_THIS_MODULE_NAME}
+        PRIVATE ${LIBMONGOCXX_LIBRARIES}
 )
 
-if (TARGET mongo::mongocxx_shared)
-    target_link_libraries(module-tests
-            PUBLIC mongo::mongocxx_shared
-    )
-elseif(TARGET mongo::mongocxx_static)
-    target_link_libraries(module-tests
-            PUBLIC mongo::mongocxx_static
-    )
-endif()
+#if (TARGET mongo::mongocxx_shared)
+#    target_link_libraries(module-tests
+#            PUBLIC mongo::mongocxx_shared
+#    )
+#elseif(TARGET mongo::mongocxx_static)
+#    target_link_libraries(module-tests
+#            PUBLIC mongo::mongocxx_static
+#    )
+#endif()
 
 add_test(module-tests module-tests)

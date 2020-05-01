@@ -44,17 +44,22 @@ target_link_oatpp(${OATPP_THIS_MODULE_NAME})
 
 target_include_directories(${OATPP_THIS_MODULE_NAME}
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        ${LIBMONGOCXX_INCLUDE_DIRS}
 )
 
-if (TARGET mongo::mongocxx_shared)
-    target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC mongo::mongocxx_shared
-    )
-elseif(TARGET mongo::mongocxx_static)
-    target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC mongo::mongocxx_static
-    )
-endif()
+target_link_libraries(${OATPP_THIS_MODULE_NAME}
+        PRIVATE ${LIBMONGOCXX_LIBRARIES}
+)
+
+#if (TARGET mongo::mongocxx_shared)
+#    target_link_libraries(${OATPP_THIS_MODULE_NAME}
+#            PUBLIC mongo::mongocxx_shared
+#    )
+#elseif(TARGET mongo::mongocxx_static)
+#    target_link_libraries(${OATPP_THIS_MODULE_NAME}
+#            PUBLIC mongo::mongocxx_static
+#    )
+#endif()
 
 #######################################################################################################
 ## install targets
