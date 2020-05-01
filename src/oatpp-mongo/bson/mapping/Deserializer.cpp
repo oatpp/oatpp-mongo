@@ -57,6 +57,11 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Deserializer::deserializeFieldsMap);
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
 
+  setDeserializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Deserializer::deserializeInlineDocs);
+  setDeserializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Deserializer::deserializeInlineDocs);
+
+  setDeserializerMethod(oatpp::mongo::bson::__class::ObjectId::CLASS_ID, &Deserializer::deserializeObjectId);
+
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
@@ -166,6 +171,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
       v_int32 size = Utils::readInt32(caret);
       if (size + caret.getPosition() > caret.getDataSize() || size < 1) {
         caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeString()]: Error. Invalid string size.");
+        return nullptr;
       }
       auto label = caret.putLabel();
       caret.inc(size);
@@ -177,6 +183,80 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeString()]: Error. Type-code doesn't match string.");
       return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
 
+  }
+
+}
+
+data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(Deserializer* deserializer,
+                                                                               parser::Caret& caret,
+                                                                               const Type* const type,
+                                                                               v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return AbstractObjectWrapper(type);
+
+    case TypeCode::DOCUMENT_EMBEDDED:
+    case TypeCode::DOCUMENT_ARRAY:
+    {
+
+      auto label = caret.putLabel();
+
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 5) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeInlineDocs()]: Error. Invalid document size.");
+        return nullptr;
+      }
+
+      caret.inc(docSize - 4);
+      label.end();
+
+      if(bsonTypeCode == DOCUMENT_ARRAY) {
+        return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineArray::Class::getType());
+      }
+
+      return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineDocument::Class::getType());
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Invalid type code.");
+      return nullptr;
+  }
+
+}
+
+data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObjectId(Deserializer* deserializer,
+                                                                             parser::Caret& caret,
+                                                                             const Type* const type,
+                                                                             v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return AbstractObjectWrapper(type);
+
+    case TypeCode::OBJECT_ID:
+    {
+
+      if(caret.getPosition() + 12 > caret.getDataSize()) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObjectId()]: Error. Invalid parsing state.");
+        return nullptr;
+      }
+
+      auto label = caret.putLabel();
+      caret.inc(12);
+
+      return AbstractObjectWrapper(std::make_shared<type::ObjectId>(label.getData()), ObjectId::Class::getType());
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObjectId()]: Error. Invalid type code.");
+      return nullptr;
   }
 
 }
@@ -233,6 +313,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
         if(innerCaret.hasError()){
           caret.inc(innerCaret.getPosition());
           caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+          return nullptr;
         }
 
         list->addPolymorphicItem(item);

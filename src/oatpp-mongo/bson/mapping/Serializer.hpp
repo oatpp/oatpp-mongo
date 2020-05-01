@@ -131,6 +131,27 @@ private:
                               const data::share::StringKeyLabel& key,
                               const data::mapping::type::AbstractObjectWrapper& polymorph);
 
+  static void serializeInlineDocs(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const data::share::StringKeyLabel& key,
+                                  TypeCode typeCode,
+                                  const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeInlineDocument(Serializer* serializer,
+                                      data::stream::ConsistentOutputStream* stream,
+                                      const data::share::StringKeyLabel& key,
+                                      const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeInlineArray(Serializer* serializer,
+                                   data::stream::ConsistentOutputStream* stream,
+                                   const data::share::StringKeyLabel& key,
+                                   const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeObjectId(Serializer* serializer,
+                                data::stream::ConsistentOutputStream* stream,
+                                const data::share::StringKeyLabel& key,
+                                const data::mapping::type::AbstractObjectWrapper& polymorph);
+
   static void serializeList(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const data::share::StringKeyLabel& key,

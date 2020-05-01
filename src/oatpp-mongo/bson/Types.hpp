@@ -26,6 +26,7 @@
 #ifndef oatpp_mongo_bson_Types_hpp
 #define oatpp_mongo_bson_Types_hpp
 
+#include "type/ObjectId.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace mongo { namespace bson {
@@ -147,6 +148,50 @@ enum TypeCode : v_char8 {
   MAX_KEY = 0x7F
 
 };
+
+typedef oatpp::data::mapping::type::Type Type;
+typedef oatpp::data::mapping::type::ClassId ClassId;
+
+namespace __class {
+
+  class InlineDocument {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
+  class InlineArray {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
+  class ObjectId {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
+}
+
+typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineDocument> InlineDocument;
+typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineArray> InlineArray;
+typedef oatpp::data::mapping::type::Primitive<type::ObjectId, __class::ObjectId>::ObjectWrapper ObjectId;
 
 }}}
 
