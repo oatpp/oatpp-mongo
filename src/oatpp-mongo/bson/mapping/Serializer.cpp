@@ -62,6 +62,8 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Serializer::serializeInlineDocument);
   setSerializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Serializer::serializeInlineArray);
 
+  setSerializerMethod(oatpp::mongo::bson::__class::ObjectId::CLASS_ID, &Serializer::serializeObjectId);
+
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
@@ -106,6 +108,9 @@ void Serializer::serializeInlineDocs(Serializer* serializer,
                                      TypeCode typeCode,
                                      const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
+
+  (void) serializer;
+
   if(polymorph) {
 
     auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
@@ -144,6 +149,29 @@ void Serializer::serializeInlineArray(Serializer* serializer,
                                       const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
   serializeInlineDocs(serializer, stream, key, TypeCode::DOCUMENT_ARRAY, polymorph);
+}
+
+void Serializer::serializeObjectId(Serializer* serializer,
+                                   data::stream::ConsistentOutputStream* stream,
+                                   const data::share::StringKeyLabel& key,
+                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  (void) serializer;
+
+  if(!key) {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeObjectId()]: Error. The key can't be null.");
+  }
+
+  if(polymorph) {
+
+    bson::Utils::writeKey(stream, TypeCode::OBJECT_ID, key);
+
+    auto objId = static_cast<bson::type::ObjectId*>(polymorph.get());
+    stream->writeSimple(objId->getData(), objId->getSize());
+
+  } else {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+  }
 }
 
 void Serializer::serializeList(Serializer* serializer,

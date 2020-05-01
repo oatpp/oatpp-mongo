@@ -50,6 +50,7 @@
 #include "oatpp-mongo/driver/wire/Message.hpp"
 #include "oatpp-mongo/driver/wire/OpMsg.hpp"
 
+#include "oatpp-mongo/bson/type/ObjectId.hpp"
 #include "oatpp-mongo/bson/mapping/ObjectMapper.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -180,7 +181,7 @@ void testMsg() {
   OATPP_LOGD("AAA", "read %d/%d", rres, messageOut.header.messageLength);
 
   if(rres > 0) {
-    oatpp::mongo::test::TestUtils::writeBinary(messageOut.data, "output");
+    //oatpp::mongo::test::TestUtils::writeBinary(messageOut.data, "output");
   }
 
   {
@@ -205,8 +206,26 @@ void testMsg() {
       auto result = objectMapper.readFromString<Result>(body->document);
       auto json = jsonMapper.writeToString(result);
 
-      OATPP_LOGD("AAA", "response json='\n%s\n'", json->c_str());
+      //OATPP_LOGD("AAA", "response json='\n%s\n'", json->c_str());
 
+      std::cout << json->c_str() << std::endl;
+
+    }
+
+    oatpp::mongo::bson::ObjectId oid1 = oatpp::mongo::bson::type::ObjectId();
+    oatpp::mongo::bson::ObjectId oid2 = oatpp::mongo::bson::type::ObjectId();
+    oatpp::mongo::bson::ObjectId oid3 = oatpp::mongo::bson::type::ObjectId();
+
+    oid1 = oid3;
+
+    OATPP_LOGD("OID", "'%s'", oid1->getValue().toString()->c_str());
+    OATPP_LOGD("OID", "'%s'", oid2->getValue().toString()->c_str());
+    OATPP_LOGD("OID", "'%s'", oid3->getValue().toString()->c_str());
+
+    if(oid1 == oid3) {
+      OATPP_LOGD("OID", "oid1 == oid3");
+    } else {
+      OATPP_LOGD("OID", "oid1 != oid3");
     }
 
   }

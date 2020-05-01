@@ -65,7 +65,7 @@ oatpp::String Utils::readCString(parser::Caret& caret) {
   return nullptr;
 }
 
-void Utils::writeKey(data::stream::ConsistentOutputStream *stream, TypeCode typeCode, const data::share::StringKeyLabel &key) {
+void Utils::writeKey(ConsistentOutputStream *stream, TypeCode typeCode, const StringKeyLabel &key) {
   if (key) {
     stream->writeCharSimple(typeCode);
     stream->writeSimple(key.getData(), key.getSize());
@@ -87,7 +87,7 @@ oatpp::String Utils::readKey(parser::Caret& caret, v_char8& typeCode) {
   return nullptr;
 }
 
-void Utils::writeInt32(data::stream::ConsistentOutputStream *stream, v_int32 value, BO_TYPE valueBO) {
+void Utils::writeInt32(ConsistentOutputStream *stream, v_int32 value, BO_TYPE valueBO) {
 
   switch(valueBO) {
 
@@ -135,7 +135,7 @@ v_int32 Utils::readInt32(parser::Caret& caret, BO_TYPE valueBO) {
 
 }
 
-void Utils::writeInt64(data::stream::ConsistentOutputStream *stream, v_int64 value, BO_TYPE valueBO) {
+void Utils::writeInt64(ConsistentOutputStream *stream, v_int64 value, BO_TYPE valueBO) {
   switch(valueBO) {
 
     case BO_TYPE::LITTLE:
@@ -187,7 +187,7 @@ v_int64 Utils::readInt64(parser::Caret& caret, BO_TYPE valueBO) {
 
 }
 
-void Utils::writeUInt64(data::stream::ConsistentOutputStream *stream, v_uint64 value, BO_TYPE valueBO) {
+void Utils::writeUInt64(ConsistentOutputStream *stream, v_uint64 value, BO_TYPE valueBO) {
   switch(valueBO) {
 
     case BO_TYPE::LITTLE:
@@ -239,7 +239,7 @@ v_uint64 Utils::readUInt64(parser::Caret& caret, BO_TYPE valueBO) {
 
 }
 
-void Utils::writeFloat64(data::stream::ConsistentOutputStream *stream, v_float64 value, BO_TYPE valueBO) {
+void Utils::writeFloat64(ConsistentOutputStream *stream, v_float64 value, BO_TYPE valueBO) {
 
   switch(valueBO) {
 
@@ -306,7 +306,7 @@ v_float64 Utils::readFloat64(parser::Caret& caret, BO_TYPE valueBO) {
 
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int8 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_int8 value) {
   writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
@@ -321,7 +321,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_int8& value, v_char8 bsonTypeC
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint8 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_uint8 value) {
   writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
@@ -336,7 +336,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_uint8& value, v_char8 bsonType
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int16 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_int16 value) {
   writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
@@ -351,7 +351,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_int16& value, v_char8 bsonType
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint16 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_uint16 value) {
   writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
@@ -366,7 +366,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_uint16& value, v_char8 bsonTyp
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int32 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_int32 value) {
   writeKey(stream, TypeCode::INT_32, key);
   writeInt32(stream, value);
 }
@@ -379,7 +379,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_int32& value, v_char8 bsonType
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint32 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_uint32 value) {
   writeKey(stream, TypeCode::INT_64, key);
   writeInt64(stream, value);
 }
@@ -394,7 +394,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_uint32& value, v_char8 bsonTyp
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_int64 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_int64 value) {
   writeKey(stream, TypeCode::INT_64, key);
   writeInt64(stream, value);
 }
@@ -407,7 +407,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_int64& value, v_char8 bsonType
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_uint64 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_uint64 value) {
   writeKey(stream, TypeCode::TIMESTAMP, key);
   writeUInt64(stream, value);
 }
@@ -420,7 +420,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_uint64& value, v_char8 bsonTyp
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_float32 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_float32 value) {
   writeKey(stream, TypeCode::DOUBLE, key);
   writeFloat64(stream, value);
 }
@@ -435,7 +435,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_float32& value, v_char8 bsonTy
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, v_float64 value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, v_float64 value) {
   writeKey(stream, TypeCode::DOUBLE, key);
   writeFloat64(stream, value);
 }
@@ -448,7 +448,7 @@ void Utils::readPrimitive(parser::Caret& caret, v_float64& value, v_char8 bsonTy
   }
 }
 
-void Utils::writePrimitive(data::stream::ConsistentOutputStream *stream, const data::share::StringKeyLabel &key, bool value) {
+void Utils::writePrimitive(ConsistentOutputStream *stream, const StringKeyLabel &key, bool value) {
   writeKey(stream, TypeCode::BOOLEAN, key);
   if(value) {
     stream->writeCharSimple(1);

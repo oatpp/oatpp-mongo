@@ -23,16 +23,41 @@
  *
  ***************************************************************************/
 
-#include "Types.hpp"
+#ifndef oatpp_mongo_bson_type_ObjectId_hpp
+#define oatpp_mongo_bson_type_ObjectId_hpp
 
-namespace oatpp { namespace mongo { namespace bson {
+#include "oatpp/core/Types.hpp"
+#include <atomic>
 
-namespace __class {
+namespace oatpp { namespace mongo { namespace bson { namespace type {
 
-  const ClassId InlineDocument::CLASS_ID("oatpp::mongo::InlineDocument");
-  const ClassId InlineArray::CLASS_ID("oatpp::mongo::InlineArray");
-  const ClassId ObjectId::CLASS_ID("oatpp::mongo::ObjectId");
+class ObjectId : public oatpp::base::Countable {
+private:
+  static const std::string PROCESS_UNIQUE;
+  static std::atomic<v_uint64> COUNTER;
+  static std::string seedProcessUnique();
+  static v_uint64 seedCounter();
+private:
+  static constexpr v_buff_size DATA_SIZE = 12;
+private:
+  v_char8 m_data[DATA_SIZE];
+public:
 
-}
+  ObjectId();
+  ObjectId(v_char8 m_data[DATA_SIZE]);
 
-}}}
+  const p_char8 getData() const;
+  v_buff_size getSize() const;
+
+  v_uint32 getTimestamp() const;
+
+  oatpp::String toString() const;
+
+  bool operator==(const ObjectId &other) const;
+  bool operator!=(const ObjectId &other) const;
+
+};
+
+}}}}
+
+#endif // oatpp_mongo_bson_type_ObjectId_hpp

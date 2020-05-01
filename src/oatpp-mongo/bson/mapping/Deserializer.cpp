@@ -60,6 +60,8 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Deserializer::deserializeInlineDocs);
   setDeserializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Deserializer::deserializeInlineDocs);
 
+  setDeserializerMethod(oatpp::mongo::bson::__class::ObjectId::CLASS_ID, &Deserializer::deserializeObjectId);
+
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
@@ -221,6 +223,39 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(D
 
     default:
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeList()]: Error. Invalid type code.");
+      return nullptr;
+  }
+
+}
+
+data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObjectId(Deserializer* deserializer,
+                                                                             parser::Caret& caret,
+                                                                             const Type* const type,
+                                                                             v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return AbstractObjectWrapper(type);
+
+    case TypeCode::OBJECT_ID:
+    {
+
+      if(caret.getPosition() + 12 > caret.getDataSize()) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObjectId()]: Error. Invalid parsing state.");
+        return nullptr;
+      }
+
+      auto label = caret.putLabel();
+      caret.inc(12);
+
+      return AbstractObjectWrapper(std::make_shared<type::ObjectId>(label.getData()), ObjectId::Class::getType());
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObjectId()]: Error. Invalid type code.");
       return nullptr;
   }
 

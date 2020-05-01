@@ -95,11 +95,13 @@ message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 ##############################
 ## Find libmongocxx dependency
 
-find_package(libmongocxx REQUIRED)
+find_package(libmongocxx 3.5 REQUIRED NAMES libmongocxx libmongocxx-static)
 
-message("[mongocxx] mongocxx found:")
-message("[mongocxx] LIBRARIES=${LIBMONGOCXX_LIBRARIES}")
-message("[mongocxx] INCLUDE_DIRS=${LIBMONGOCXX_INCLUDE_DIRS}")
+message("LIBBSONCXX_INCLUDE_DIRS=${LIBBSONCXX_INCLUDE_DIRS}")
+message("LIBBSONCXX_LIBRARIES=${LIBBSONCXX_LIBRARIES}")
+
+message("LIBMONGOCXX_INCLUDE_DIRS=${LIBMONGOCXX_INCLUDE_DIRS}")
+message("LIBMONGOCXX_LIBRARIES=${LIBMONGOCXX_LIBRARIES}")
 
 message("\n############################################################################\n")
 

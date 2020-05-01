@@ -147,6 +147,11 @@ private:
                                    const data::share::StringKeyLabel& key,
                                    const data::mapping::type::AbstractObjectWrapper& polymorph);
 
+  static void serializeObjectId(Serializer* serializer,
+                                data::stream::ConsistentOutputStream* stream,
+                                const data::share::StringKeyLabel& key,
+                                const data::mapping::type::AbstractObjectWrapper& polymorph);
+
   static void serializeList(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const data::share::StringKeyLabel& key,
