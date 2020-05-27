@@ -68,33 +68,31 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 template<class Obj>
-class Setter : public oatpp::Object {
+class Setter : public oatpp::DTO {
 
-  typedef typename Obj::ObjectWrapper ObjW;
+  DTO_INIT(Setter, DTO)
 
-  DTO_INIT(Setter, Object)
-
-  DTO_FIELD(ObjW, set, "$set");
+  DTO_FIELD(oatpp::Object<Obj>, set, "$set");
 
 };
 
 template<class Obj>
-class UpdateWrapper : public oatpp::Object {
+class UpdateWrapper : public oatpp::DTO {
 
   typedef typename Obj::ObjectWrapper ObjW;
   typedef Setter<Obj> ObjectSetter;
   typedef typename ObjectSetter::ObjectWrapper SetterW;
 
-  DTO_INIT(UpdateWrapper, Object)
+  DTO_INIT(UpdateWrapper, DTO)
 
   DTO_FIELD(ObjW, q);
   DTO_FIELD(SetterW, u) = ObjectSetter::createShared();
 
 };
 
-class Obj1 : public oatpp::Object {
+class Obj1 : public oatpp::DTO {
 
-  DTO_INIT(Obj1, Object)
+  DTO_INIT(Obj1, DTO)
 
   DTO_FIELD(String, firstName, "first-name") = "aaa";
   DTO_FIELD(String, lastName, "last-name") = "bbbbb";
@@ -102,37 +100,37 @@ class Obj1 : public oatpp::Object {
 
 };
 
-class Obj2 : public oatpp::Object {
+class Obj2 : public oatpp::DTO {
 
-  DTO_INIT(Obj2, Object)
+  DTO_INIT(Obj2, DTO)
 
   DTO_FIELD(String, hello) = "Hello-World!!!";
   DTO_FIELD(String, mongo) = "MongoDB!!!";
 
 };
 
-class KeyPattern : public oatpp::Object {
+class KeyPattern : public oatpp::DTO {
 
-  DTO_INIT(KeyPattern, Object)
+  DTO_INIT(KeyPattern, DTO)
 
   DTO_FIELD(Int32, _id);
 
 };
 
-class WriteError : public oatpp::Object {
+class WriteError : public oatpp::DTO {
 
-  DTO_INIT(WriteError, Object)
+  DTO_INIT(WriteError, DTO)
 
   DTO_FIELD(Int32, index);
   DTO_FIELD(Int32, code);
-  DTO_FIELD(KeyPattern::ObjectWrapper, keyPattern);
+  DTO_FIELD(Object<KeyPattern>, keyPattern);
   DTO_FIELD(String, errorMessage, "errmsg");
 
 };
 
-class Result : public oatpp::Object {
+class Result : public oatpp::DTO {
 
-  DTO_INIT(Result, Object)
+  DTO_INIT(Result, DTO)
 
   DTO_FIELD(Int32, number, "n");
   DTO_FIELD(Float64, ok, "ok");
@@ -141,7 +139,7 @@ class Result : public oatpp::Object {
   DTO_FIELD(Int32, code, "code");
   DTO_FIELD(String, codeName, "codeName");
 
-  DTO_FIELD(List<WriteError::ObjectWrapper>::ObjectWrapper, writeErrors);
+  DTO_FIELD(List<Object<WriteError>>, writeErrors);
 
 };
 
@@ -203,7 +201,7 @@ void testMsg() {
       auto body = std::static_pointer_cast<oatpp::mongo::driver::wire::BodySection>(section);
       oatpp::mongo::test::TestUtils::writeBinary(body->document, "body");
 
-      auto result = objectMapper.readFromString<Result>(body->document);
+      auto result = objectMapper.readFromString<oatpp::Object<Result>>(body->document);
       auto json = jsonMapper.writeToString(result);
 
       //OATPP_LOGD("AAA", "response json='\n%s\n'", json->c_str());
@@ -218,9 +216,9 @@ void testMsg() {
 
     oid1 = oid3;
 
-    OATPP_LOGD("OID", "'%s'", oid1->getValue().toString()->c_str());
-    OATPP_LOGD("OID", "'%s'", oid2->getValue().toString()->c_str());
-    OATPP_LOGD("OID", "'%s'", oid3->getValue().toString()->c_str());
+    OATPP_LOGD("OID", "'%s'", oid1->toString()->c_str());
+    OATPP_LOGD("OID", "'%s'", oid2->toString()->c_str());
+    OATPP_LOGD("OID", "'%s'", oid3->toString()->c_str());
 
     if(oid1 == oid3) {
       OATPP_LOGD("OID", "oid1 == oid3");
@@ -234,8 +232,8 @@ void testMsg() {
 
 void runTests() {
 
-  testMsg();
-/*
+  //testMsg();
+
   OATPP_RUN_TEST(oatpp::mongo::test::bson::StringTest);
 
   OATPP_RUN_TEST(oatpp::mongo::test::bson::Int8Test);
@@ -250,7 +248,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::mongo::test::bson::ObjectTest);
 
   OATPP_RUN_TEST(oatpp::mongo::test::bson::InlineDocumentTest);
-*/
+
 }
 
 }

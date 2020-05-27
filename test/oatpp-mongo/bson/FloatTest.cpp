@@ -40,9 +40,9 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /* Complete object */
-class F32_Obj : public oatpp::Object {
+class F32_Obj : public oatpp::DTO {
 
-DTO_INIT(F32_Obj, Object)
+DTO_INIT(F32_Obj, DTO)
 
   DTO_FIELD(Float32, f1) = 3.14159265359;
   DTO_FIELD(Float32, f2) = 3.14159265359 / 2.0;
@@ -52,9 +52,9 @@ DTO_INIT(F32_Obj, Object)
 };
 
 /* No first field */
-class F32_Sub1 : public oatpp::Object {
+class F32_Sub1 : public oatpp::DTO {
 
-DTO_INIT(F32_Sub1, Object)
+DTO_INIT(F32_Sub1, DTO)
 
   DTO_FIELD(Float32, f2);
   DTO_FIELD(Float32, f3);
@@ -63,9 +63,9 @@ DTO_INIT(F32_Sub1, Object)
 };
 
 /* No second field */
-class F32_Sub2 : public oatpp::Object {
+class F32_Sub2 : public oatpp::DTO {
 
-DTO_INIT(F32_Sub2, Object)
+DTO_INIT(F32_Sub2, DTO)
 
   DTO_FIELD(Float32, f1);
   DTO_FIELD(Float32, f3);
@@ -74,9 +74,9 @@ DTO_INIT(F32_Sub2, Object)
 };
 
 /* No null field */
-class F32_Sub3 : public oatpp::Object {
+class F32_Sub3 : public oatpp::DTO {
 
-DTO_INIT(F32_Sub3, Object)
+DTO_INIT(F32_Sub3, DTO)
 
   DTO_FIELD(Float32, f1);
   DTO_FIELD(Float32, f2);
@@ -85,9 +85,9 @@ DTO_INIT(F32_Sub3, Object)
 };
 
 /* No last field */
-class F32_Sub4 : public oatpp::Object {
+class F32_Sub4 : public oatpp::DTO {
 
-DTO_INIT(F32_Sub4, Object)
+DTO_INIT(F32_Sub4, DTO)
 
   DTO_FIELD(Float32, f1);
   DTO_FIELD(Float32, f2);
@@ -99,9 +99,9 @@ DTO_INIT(F32_Sub4, Object)
 // Float64
 
 /* Complete object */
-class F64_Obj : public oatpp::Object {
+class F64_Obj : public oatpp::DTO {
 
-DTO_INIT(F64_Obj, Object)
+DTO_INIT(F64_Obj, DTO)
 
   DTO_FIELD(Float64, f1) = 3.14159265359;
   DTO_FIELD(Float64, f2) = 3.14159265359 / 2.0;
@@ -111,9 +111,9 @@ DTO_INIT(F64_Obj, Object)
 };
 
 /* No first field */
-class F64_Sub1 : public oatpp::Object {
+class F64_Sub1 : public oatpp::DTO {
 
-DTO_INIT(F64_Sub1, Object)
+DTO_INIT(F64_Sub1, DTO)
 
   DTO_FIELD(Float64, f2);
   DTO_FIELD(Float64, f3);
@@ -122,9 +122,9 @@ DTO_INIT(F64_Sub1, Object)
 };
 
 /* No second field */
-class F64_Sub2 : public oatpp::Object {
+class F64_Sub2 : public oatpp::DTO {
 
-DTO_INIT(F64_Sub2, Object)
+DTO_INIT(F64_Sub2, DTO)
 
   DTO_FIELD(Float64, f1);
   DTO_FIELD(Float64, f3);
@@ -133,9 +133,9 @@ DTO_INIT(F64_Sub2, Object)
 };
 
 /* No null field */
-class F64_Sub3 : public oatpp::Object {
+class F64_Sub3 : public oatpp::DTO {
 
-DTO_INIT(F64_Sub3, Object)
+DTO_INIT(F64_Sub3, DTO)
 
   DTO_FIELD(Float64, f1);
   DTO_FIELD(Float64, f2);
@@ -144,9 +144,9 @@ DTO_INIT(F64_Sub3, Object)
 };
 
 /* No last field */
-class F64_Sub4 : public oatpp::Object {
+class F64_Sub4 : public oatpp::DTO {
 
-DTO_INIT(F64_Sub4, Object)
+DTO_INIT(F64_Sub4, DTO)
 
   DTO_FIELD(Float64, f1);
   DTO_FIELD(Float64, f2);
@@ -226,7 +226,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "f32 sub0...");
-      auto sub = bsonMapper.readFromString<F32_Obj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F32_Obj>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -238,7 +238,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "f32 sub1...");
-      auto sub = bsonMapper.readFromString<F32_Sub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F32_Sub1>>(bson);
 
       OATPP_ASSERT(sub->f2 == obj->f2);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -249,7 +249,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "f32 sub2...");
-      auto sub = bsonMapper.readFromString<F32_Sub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F32_Sub2>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -260,7 +260,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "f32 sub3...");
-      auto sub = bsonMapper.readFromString<F32_Sub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F32_Sub3>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -271,7 +271,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "f32 sub4...");
-      auto sub = bsonMapper.readFromString<F32_Sub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F32_Sub4>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -319,7 +319,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, " F64 sub0...");
-      auto sub = bsonMapper.readFromString<F64_Obj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F64_Obj>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -331,7 +331,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, " F64 sub1...");
-      auto sub = bsonMapper.readFromString<F64_Sub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F64_Sub1>>(bson);
 
       OATPP_ASSERT(sub->f2 == obj->f2);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -342,7 +342,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, " F64 sub2...");
-      auto sub = bsonMapper.readFromString<F64_Sub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F64_Sub2>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -353,7 +353,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, " F64 sub3...");
-      auto sub = bsonMapper.readFromString<F64_Sub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F64_Sub3>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -364,7 +364,7 @@ void FloatTest::onRun() {
 
     {
       OATPP_LOGI(TAG, " F64 sub4...");
-      auto sub = bsonMapper.readFromString<F64_Sub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<F64_Sub4>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);

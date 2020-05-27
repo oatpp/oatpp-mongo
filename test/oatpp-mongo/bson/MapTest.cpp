@@ -38,102 +38,102 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /* Complete object */
-class Obj : public oatpp::Object {
+class Obj : public oatpp::DTO {
 
-  DTO_INIT(Obj, Object)
+  DTO_INIT(Obj, DTO)
 
-  DTO_FIELD(Fields<String>::ObjectWrapper, f1) = Fields<String>::createShared();
-  DTO_FIELD(Fields<String>::ObjectWrapper, f2) = Fields<String>::createShared();
-  DTO_FIELD(Fields<String>::ObjectWrapper, f3) = nullptr;
-  DTO_FIELD(Fields<String>::ObjectWrapper, f4) = Fields<String>::createShared();
+  DTO_FIELD(Fields<String>, f1) = {};
+  DTO_FIELD(Fields<String>, f2) = {};
+  DTO_FIELD(Fields<String>, f3) = nullptr;
+  DTO_FIELD(Fields<String>, f4) = {};
 
 public:
 
   void fill() {
 
-    f1->put("f1-key1", "f1_1");
-    f1->put("f1-key2", nullptr);
-    f1->put("f1-key3", "f1_3_abc");
+    f1->push_back({"f1-key1", "f1_1"});
+    f1->push_back({"f1-key2", nullptr});
+    f1->push_back({"f1-key3", "f1_3_abc"});
 
-    f2->put("f2-key1", "f2_1_2");
-    f2->put("f2-key2", nullptr);
-    f2->put("f2-key3", "f2_3_abc_2");
+    f2->push_back({"f2-key1", "f2_1_2"});
+    f2->push_back({"f2-key2", nullptr});
+    f2->push_back({"f2-key3", "f2_3_abc_2"});
 
-    f4->put("f4-key1", "f3_1_2_3");
-    f4->put("f4-key2", nullptr);
-    f4->put("f4-key3", "f3_3_abc_2_3");
+    f4->push_back({"f4-key1", "f3_1_2_3"});
+    f4->push_back({"f4-key2", nullptr});
+    f4->push_back({"f4-key3", "f3_3_abc_2_3"});
 
   }
 
 };
 
 /* No first field */
-class Sub1 : public oatpp::Object {
+class Sub1 : public oatpp::DTO {
 
-  DTO_INIT(Sub1, Object)
+  DTO_INIT(Sub1, DTO)
 
-  DTO_FIELD(Fields<String>::ObjectWrapper, f2);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f3);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f4);
+  DTO_FIELD(Fields<String>, f2);
+  DTO_FIELD(Fields<String>, f3);
+  DTO_FIELD(Fields<String>, f4);
 
 };
 
 /* No second field */
-class Sub2 : public oatpp::Object {
+class Sub2 : public oatpp::DTO {
 
-  DTO_INIT(Sub2, Object)
+  DTO_INIT(Sub2, DTO)
 
-  DTO_FIELD(Fields<String>::ObjectWrapper, f1);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f3);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f4);
+  DTO_FIELD(Fields<String>, f1);
+  DTO_FIELD(Fields<String>, f3);
+  DTO_FIELD(Fields<String>, f4);
 
 };
 
 /* No null field */
-class Sub3 : public oatpp::Object {
+class Sub3 : public oatpp::DTO {
 
-  DTO_INIT(Sub3, Object)
+  DTO_INIT(Sub3, DTO)
 
-  DTO_FIELD(Fields<String>::ObjectWrapper, f1);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f2);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f4);
+  DTO_FIELD(Fields<String>, f1);
+  DTO_FIELD(Fields<String>, f2);
+  DTO_FIELD(Fields<String>, f4);
 
 };
 
 /* No last field */
-class Sub4 : public oatpp::Object {
+class Sub4 : public oatpp::DTO {
 
-  DTO_INIT(Sub4, Object)
+  DTO_INIT(Sub4, DTO)
 
-  DTO_FIELD(Fields<String>::ObjectWrapper, f3);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f2);
-  DTO_FIELD(Fields<String>::ObjectWrapper, f1);
+  DTO_FIELD(Fields<String>, f3);
+  DTO_FIELD(Fields<String>, f2);
+  DTO_FIELD(Fields<String>, f1);
 
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
 
-bool cmpLists(const oatpp::Fields<oatpp::String>::ObjectWrapper& a, const oatpp::Fields<oatpp::String>::ObjectWrapper& b, v_int32 expectedCount) {
+bool cmpLists(const oatpp::Fields<oatpp::String>& a, const oatpp::Fields<oatpp::String>& b, v_int32 expectedCount) {
 
-  if(a->count() != b->count() || a->count() != expectedCount) {
+  if(a->size() != b->size() || a->size() != expectedCount) {
     return false;
   }
 
-  auto currA = a->getFirstEntry();
-  auto currB = b->getFirstEntry();
+  auto currA = a->begin();
+  auto currB = b->begin();
 
-  while(currA != nullptr) {
+  while(currA != a->end()) {
 
-    auto keyA = currA->getKey();
-    auto keyB = currB->getKey();
+    auto keyA = currA->first;
+    auto keyB = currB->first;
 
     if(keyA != keyB) {
       return false;
     }
 
-    auto strA = currA->getValue();
-    auto strB = currB->getValue();
+    auto strA = currA->second;
+    auto strB = currB->second;
 
     if(strA && strB) {
       if(strA != strB) {
@@ -143,8 +143,8 @@ bool cmpLists(const oatpp::Fields<oatpp::String>::ObjectWrapper& a, const oatpp:
       return false;
     }
 
-    currA = currA->getNext();
-    currB = currB->getNext();
+    currA ++;
+    currB ++;
   }
 
   return true;
@@ -176,7 +176,7 @@ void MapTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub0...");
-      auto sub = bsonMapper.readFromString<Obj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Obj>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -188,7 +188,7 @@ void MapTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub1...");
-      auto sub = bsonMapper.readFromString<Sub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub1>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -199,7 +199,7 @@ void MapTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub2...");
-      auto sub = bsonMapper.readFromString<Sub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub2>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -210,7 +210,7 @@ void MapTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub3...");
-      auto sub = bsonMapper.readFromString<Sub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub3>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -221,7 +221,7 @@ void MapTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub4...");
-      auto sub = bsonMapper.readFromString<Sub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub4>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -239,9 +239,9 @@ void MapTest::onRun() {
     oatpp::String s2 = "Oat++ & Mongo";
 
     auto map = oatpp::Fields<oatpp::String>::createShared();
-    map->put("k1", s0);
-    map->put("k2", s1);
-    map->put("k3", s2);
+    map->push_back({"k1", s0});
+    map->push_back({"k2", s1});
+    map->push_back({"k3", s2});
 
     auto bson = bsonMapper.writeToString(map);
     auto bcxx = TestUtils::writeJsonToBsonCXX(map);
@@ -255,10 +255,10 @@ void MapTest::onRun() {
 
     auto deMap = bsonMapper.readFromString<oatpp::Fields<oatpp::String>>(bson);
 
-    OATPP_ASSERT(map->count() == deMap->count());
-    OATPP_ASSERT(deMap->get("k1", "") == s0);
-    OATPP_ASSERT(deMap->get("k2", "") == s1);
-    OATPP_ASSERT(deMap->get("k3", "") == s2);
+    OATPP_ASSERT(map->size() == deMap->size());
+    OATPP_ASSERT(deMap.getValueByKey("k1", "") == s0);
+    OATPP_ASSERT(deMap.getValueByKey("k2", "") == s1);
+    OATPP_ASSERT(deMap.getValueByKey("k3", "") == s2);
 
   }
 

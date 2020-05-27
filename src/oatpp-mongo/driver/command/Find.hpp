@@ -42,9 +42,9 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 class Find : public Command {
 private:
 
-  class FindDto : public oatpp::Object {
+  class FindDto : public oatpp::DTO {
 
-    DTO_INIT(FindDto, Object)
+    DTO_INIT(FindDto, DTO)
 
     DTO_FIELD(String, collectionName, "find");
     DTO_FIELD(String, databaseName, "$db");
@@ -52,7 +52,7 @@ private:
   };
 
 private:
-  FindDto::ObjectWrapper m_findDto;
+  oatpp::Object<FindDto> m_findDto;
 public:
 
   Find(const oatpp::String& databaseName, const oatpp::String& collectionName);

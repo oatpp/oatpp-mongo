@@ -57,7 +57,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Serializer::serializeFieldsMap);
+  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeFieldsMap);
 
   setSerializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Serializer::serializeInlineDocument);
   setSerializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Serializer::serializeInlineArray);
@@ -78,7 +78,7 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
 void Serializer::serializeString(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::share::StringKeyLabel& key,
-                                 const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                 const oatpp::Void& polymorph)
 {
 
   (void) serializer;
@@ -106,7 +106,7 @@ void Serializer::serializeInlineDocs(Serializer* serializer,
                                      data::stream::ConsistentOutputStream* stream,
                                      const data::share::StringKeyLabel& key,
                                      TypeCode typeCode,
-                                     const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                     const oatpp::Void& polymorph)
 {
 
   (void) serializer;
@@ -138,7 +138,7 @@ void Serializer::serializeInlineDocs(Serializer* serializer,
 void Serializer::serializeInlineDocument(Serializer* serializer,
                                          data::stream::ConsistentOutputStream* stream,
                                          const data::share::StringKeyLabel& key,
-                                         const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                         const oatpp::Void& polymorph)
 {
   serializeInlineDocs(serializer, stream, key, TypeCode::DOCUMENT_EMBEDDED, polymorph);
 }
@@ -146,7 +146,7 @@ void Serializer::serializeInlineDocument(Serializer* serializer,
 void Serializer::serializeInlineArray(Serializer* serializer,
                                       data::stream::ConsistentOutputStream* stream,
                                       const data::share::StringKeyLabel& key,
-                                      const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                      const oatpp::Void& polymorph)
 {
   serializeInlineDocs(serializer, stream, key, TypeCode::DOCUMENT_ARRAY, polymorph);
 }
@@ -154,7 +154,7 @@ void Serializer::serializeInlineArray(Serializer* serializer,
 void Serializer::serializeObjectId(Serializer* serializer,
                                    data::stream::ConsistentOutputStream* stream,
                                    const data::share::StringKeyLabel& key,
-                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                   const oatpp::Void& polymorph)
 {
   (void) serializer;
 
@@ -177,8 +177,10 @@ void Serializer::serializeObjectId(Serializer* serializer,
 void Serializer::serializeList(Serializer* serializer,
                                data::stream::ConsistentOutputStream* stream,
                                const data::share::StringKeyLabel& key,
-                               const data::mapping::type::AbstractObjectWrapper& polymorph)
+                               const oatpp::Void& polymorph)
 {
+
+  typedef oatpp::AbstractList Collection;
 
   if(polymorph) {
 
@@ -186,18 +188,14 @@ void Serializer::serializeList(Serializer* serializer,
 
     data::stream::BufferOutputStream innerStream;
 
-    auto *list = static_cast<AbstractList *>(polymorph.get());
-    auto curr = list->getFirstNode();
-
+    const auto& list = polymorph.staticCast<Collection>();
     v_int32 index = 0;
 
-    while (curr != nullptr) {
-      auto value = curr->getData();
+    for(auto& value : *list) {
       if (value || serializer->getConfig()->includeNullFields) {
-        serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), curr->getData());
+        serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), value);
         index ++;
       }
-      curr = curr->getNext();
     }
 
     bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
@@ -215,8 +213,10 @@ void Serializer::serializeList(Serializer* serializer,
 void Serializer::serializeFieldsMap(Serializer* serializer,
                                     data::stream::ConsistentOutputStream* stream,
                                     const data::share::StringKeyLabel& key,
-                                    const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                    const oatpp::Void& polymorph)
 {
+
+  typedef oatpp::AbstractFields Collection;
 
   if(polymorph) {
 
@@ -224,17 +224,14 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
 
     data::stream::BufferOutputStream innerStream;
 
-    auto map = static_cast<AbstractFieldsMap *>(polymorph.get());
+    const auto& map = polymorph.staticCast<Collection>();
 
-    auto curr = map->getFirstEntry();
-
-    while (curr != nullptr) {
-      auto value = curr->getValue();
-      if (value || serializer->getConfig()->includeNullFields) {
-        auto key = curr->getKey();
-        serializer->serialize(&innerStream, key, curr->getValue());
+    for(auto& pair : *map) {
+      const auto& value = pair.second;
+      if(value || serializer->getConfig()->includeNullFields) {
+        const auto& key = pair.first;
+        serializer->serialize(&innerStream, key, value);
       }
-      curr = curr->getNext();
     }
 
     bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
@@ -252,7 +249,7 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
 void Serializer::serializeObject(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::share::StringKeyLabel& key,
-                                 const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                 const oatpp::Void& polymorph)
 {
 
   if(polymorph) {
@@ -261,8 +258,8 @@ void Serializer::serializeObject(Serializer* serializer,
 
     data::stream::BufferOutputStream innerStream;
 
-    auto fields = polymorph.valueType->properties->getList();
-    Object *object = static_cast<Object *>(polymorph.get());
+    auto fields = polymorph.valueType->propertiesGetter()->getList();
+    oatpp::DTO* object = static_cast<oatpp::DTO*>(polymorph.get());
 
     for (auto const &field : fields) {
 
@@ -287,7 +284,7 @@ void Serializer::serializeObject(Serializer* serializer,
 
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                            const data::share::StringKeyLabel& key,
-                           const data::mapping::type::AbstractObjectWrapper& polymorph)
+                           const oatpp::Void& polymorph)
 {
   auto id = polymorph.valueType->classId.id;
   auto& method = m_methods[id];
@@ -300,7 +297,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
 }
 
 void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
-                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                   const oatpp::Void& polymorph)
 {
   serialize(stream, nullptr, polymorph);
 }

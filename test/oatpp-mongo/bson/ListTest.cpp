@@ -38,94 +38,94 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /* Complete object */
-class Obj : public oatpp::Object {
+class Obj : public oatpp::DTO {
 
-  DTO_INIT(Obj, Object)
+  DTO_INIT(Obj, DTO)
 
-  DTO_FIELD(List<String>::ObjectWrapper, f1) = List<String>::createShared();
-  DTO_FIELD(List<String>::ObjectWrapper, f2) = List<String>::createShared();
-  DTO_FIELD(List<String>::ObjectWrapper, f3) = nullptr;
-  DTO_FIELD(List<String>::ObjectWrapper, f4) = List<String>::createShared();
+  DTO_FIELD(List<String>, f1) = List<String>::createShared();
+  DTO_FIELD(List<String>, f2) = List<String>::createShared();
+  DTO_FIELD(List<String>, f3) = nullptr;
+  DTO_FIELD(List<String>, f4) = List<String>::createShared();
 
 public:
 
   void fill() {
 
-    f1->pushBack("f1_1");
-    f1->pushBack(nullptr);
-    f1->pushBack("f1_3_abc");
+    f1->push_back("f1_1");
+    f1->push_back(nullptr);
+    f1->push_back("f1_3_abc");
 
-    f2->pushBack("f2_1_2");
-    f2->pushBack(nullptr);
-    f2->pushBack("f2_3_abc_2");
+    f2->push_back("f2_1_2");
+    f2->push_back(nullptr);
+    f2->push_back("f2_3_abc_2");
 
-    f4->pushBack("f3_1_2_3");
-    f4->pushBack(nullptr);
-    f4->pushBack("f3_3_abc_2_3");
+    f4->push_back("f3_1_2_3");
+    f4->push_back(nullptr);
+    f4->push_back("f3_3_abc_2_3");
 
   }
 
 };
 
 /* No first field */
-class Sub1 : public oatpp::Object {
+class Sub1 : public oatpp::DTO {
 
-  DTO_INIT(Sub1, Object)
+  DTO_INIT(Sub1, DTO)
 
-  DTO_FIELD(List<String>::ObjectWrapper, f2);
-  DTO_FIELD(List<String>::ObjectWrapper, f3);
-  DTO_FIELD(List<String>::ObjectWrapper, f4);
+  DTO_FIELD(List<String>, f2);
+  DTO_FIELD(List<String>, f3);
+  DTO_FIELD(List<String>, f4);
 
 };
 
 /* No second field */
-class Sub2 : public oatpp::Object {
+class Sub2 : public oatpp::DTO {
 
-  DTO_INIT(Sub2, Object)
+  DTO_INIT(Sub2, DTO)
 
-  DTO_FIELD(List<String>::ObjectWrapper, f1);
-  DTO_FIELD(List<String>::ObjectWrapper, f3);
-  DTO_FIELD(List<String>::ObjectWrapper, f4);
+  DTO_FIELD(List<String>, f1);
+  DTO_FIELD(List<String>, f3);
+  DTO_FIELD(List<String>, f4);
 
 };
 
 /* No null field */
-class Sub3 : public oatpp::Object {
+class Sub3 : public oatpp::DTO {
 
-  DTO_INIT(Sub3, Object)
+  DTO_INIT(Sub3, DTO)
 
-  DTO_FIELD(List<String>::ObjectWrapper, f1);
-  DTO_FIELD(List<String>::ObjectWrapper, f2);
-  DTO_FIELD(List<String>::ObjectWrapper, f4);
+  DTO_FIELD(List<String>, f1);
+  DTO_FIELD(List<String>, f2);
+  DTO_FIELD(List<String>, f4);
 
 };
 
 /* No last field */
-class Sub4 : public oatpp::Object {
+class Sub4 : public oatpp::DTO {
 
-  DTO_INIT(Sub4, Object)
+  DTO_INIT(Sub4, DTO)
 
-  DTO_FIELD(List<String>::ObjectWrapper, f3);
-  DTO_FIELD(List<String>::ObjectWrapper, f2);
-  DTO_FIELD(List<String>::ObjectWrapper, f1);
+  DTO_FIELD(List<String>, f3);
+  DTO_FIELD(List<String>, f2);
+  DTO_FIELD(List<String>, f1);
 
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-bool cmpLists(const oatpp::List<oatpp::String>::ObjectWrapper& a, const oatpp::List<oatpp::String>::ObjectWrapper& b, v_int32 expectedCount) {
+bool cmpLists(const oatpp::List<oatpp::String>& a, const oatpp::List<oatpp::String>& b, v_int32 expectedCount) {
 
-  if(a->count() != b->count() || a->count() != expectedCount) {
+  if(a->size() != b->size() || a->size() != expectedCount) {
     return false;
   }
 
-  auto currA = a->getFirstNode();
-  auto currB = b->getFirstNode();
+  auto currA = a->begin();
+  auto currB = b->begin();
 
-  while(currA != nullptr) {
+  while(currA != a->end()) {
 
-    auto strA = currA->getData();
-    auto strB = currB->getData();
+    auto strA = *currA;
+    auto strB = *currB;
 
     if(strA && strB) {
       if(strA != strB) {
@@ -135,8 +135,8 @@ bool cmpLists(const oatpp::List<oatpp::String>::ObjectWrapper& a, const oatpp::L
       return false;
     }
 
-    currA = currA->getNext();
-    currB = currB->getNext();
+    currA ++;
+    currB ++;
   }
 
   return true;
@@ -167,7 +167,7 @@ void ListTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub0...");
-      auto sub = bsonMapper.readFromString<Obj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Obj>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -179,7 +179,7 @@ void ListTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub1...");
-      auto sub = bsonMapper.readFromString<Sub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub1>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -190,7 +190,7 @@ void ListTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub2...");
-      auto sub = bsonMapper.readFromString<Sub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub2>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -201,7 +201,7 @@ void ListTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub3...");
-      auto sub = bsonMapper.readFromString<Sub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub3>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -212,7 +212,7 @@ void ListTest::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub4...");
-      auto sub = bsonMapper.readFromString<Sub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub4>>(bson);
 
       OATPP_ASSERT(cmpLists(sub->f1, obj->f1, 3));
       OATPP_ASSERT(cmpLists(sub->f2, obj->f2, 3));
@@ -230,9 +230,9 @@ void ListTest::onRun() {
     oatpp::String s2 = "Oat++ & Mongo";
 
     auto list = oatpp::List<oatpp::String>::createShared();
-    list->pushBack(s0);
-    list->pushBack(s1);
-    list->pushBack(s2);
+    list->push_back(s0);
+    list->push_back(s1);
+    list->push_back(s2);
 
     auto bson = bsonMapper.writeToString(list);
     auto bcxx = TestUtils::writeJsonToBsonCXX(list);
@@ -246,10 +246,10 @@ void ListTest::onRun() {
 
     auto deList = bsonMapper.readFromString<oatpp::List<oatpp::String>>(bson);
 
-    OATPP_ASSERT(list->count() == deList->count());
-    OATPP_ASSERT(deList->get(0) == s0);
-    OATPP_ASSERT(deList->get(1) == s1);
-    OATPP_ASSERT(deList->get(2) == s2);
+    OATPP_ASSERT(list->size() == deList->size());
+    OATPP_ASSERT(deList[0] == s0);
+    OATPP_ASSERT(deList[1] == s1);
+    OATPP_ASSERT(deList[2] == s2);
 
   }
 

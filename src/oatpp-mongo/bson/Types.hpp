@@ -191,7 +191,7 @@ namespace __class {
 
 typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineDocument> InlineDocument;
 typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineArray> InlineArray;
-typedef oatpp::data::mapping::type::Primitive<type::ObjectId, __class::ObjectId>::ObjectWrapper ObjectId;
+typedef oatpp::data::mapping::type::Primitive<type::ObjectId, __class::ObjectId> ObjectId;
 
 }}}
 

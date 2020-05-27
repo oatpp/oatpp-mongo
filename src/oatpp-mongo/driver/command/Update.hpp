@@ -42,24 +42,24 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 class Update : public Command {
 private:
 
-  class UpdateDto : public oatpp::Object {
+  class UpdateDto : public oatpp::DTO {
 
-    DTO_INIT(UpdateDto, Object)
+    DTO_INIT(UpdateDto, DTO)
 
     DTO_FIELD(String, collectionName, "update");
     DTO_FIELD(String, databaseName, "$db");
-    DTO_FIELD(WriteConcern::ObjectWrapper, writeConcern, "writeConcern");
+    DTO_FIELD(oatpp::Object<WriteConcern>, writeConcern, "writeConcern");
 
   };
 
 private:
-  UpdateDto::ObjectWrapper m_updateDto;
+  oatpp::Object<UpdateDto> m_updateDto;
   std::shared_ptr<wire::DocumentSequenceSection> m_documents;
 public:
 
   Update(const oatpp::String& databaseName,
          const oatpp::String& collectionName,
-         const WriteConcern::ObjectWrapper& writeConcern = nullptr);
+         const oatpp::Object<WriteConcern>& writeConcern = nullptr);
 
   void addDocument(const oatpp::String& document);
 

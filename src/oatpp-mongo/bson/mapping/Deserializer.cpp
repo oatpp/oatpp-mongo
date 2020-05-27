@@ -54,7 +54,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Deserializer::deserializeFieldsMap);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeFieldsMap);
   setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
 
   setDeserializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Deserializer::deserializeInlineDocs);
@@ -122,10 +122,10 @@ void Deserializer::skipElement(parser::Caret& caret, v_char8 bsonTypeCode) {
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type,
-                                                                            v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer,
+                                             parser::Caret& caret,
+                                             const Type* const type,
+                                             v_char8 bsonTypeCode)
 {
 
   (void) deserializer;
@@ -134,26 +134,26 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Dese
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::Class::getType());
 
     case TypeCode::BOOLEAN:
       if(caret.canContinueAtChar(0, 1)) {
-        return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
+        return oatpp::Void(std::make_shared<bool>(false), Boolean::Class::getType());
       } else if(caret.canContinueAtChar(1, 1)) {
-        return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(true), Boolean::ObjectWrapper::Class::getType());
+        return oatpp::Void(std::make_shared<bool>(true), Boolean::Class::getType());
       }
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeBoolean()]: Error. Invalid boolean value.");
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::Class::getType());
 
     default:
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeBoolean()]: Error. Type-code doesn't match boolean.");
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::Class::getType());
 
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeString(Deserializer* deserializer,
                                                                            parser::Caret& caret,
                                                                            const Type* const type,
                                                                            v_char8 bsonTypeCode)
@@ -165,7 +165,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(String::Class::getType());
+      return oatpp::Void(String::Class::getType());
 
     case TypeCode::STRING: {
       v_int32 size = Utils::readInt32(caret);
@@ -175,28 +175,28 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
       }
       auto label = caret.putLabel();
       caret.inc(size);
-      return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize() - 1), String::Class::getType());
+      return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize() - 1), String::Class::getType());
 
     }
 
     default:
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeString()]: Error. Type-code doesn't match string.");
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::Class::getType());
 
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(Deserializer* deserializer,
-                                                                               parser::Caret& caret,
-                                                                               const Type* const type,
-                                                                               v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeInlineDocs(Deserializer* deserializer,
+                                                parser::Caret& caret,
+                                                const Type* const type,
+                                                v_char8 bsonTypeCode)
 {
 
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(type);
+      return oatpp::Void(type);
 
     case TypeCode::DOCUMENT_EMBEDDED:
     case TypeCode::DOCUMENT_ARRAY:
@@ -214,10 +214,10 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(D
       label.end();
 
       if(bsonTypeCode == DOCUMENT_ARRAY) {
-        return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineArray::Class::getType());
+        return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineArray::Class::getType());
       }
 
-      return AbstractObjectWrapper(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineDocument::Class::getType());
+      return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineDocument::Class::getType());
 
     }
 
@@ -228,16 +228,16 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeInlineDocs(D
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObjectId(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type,
-                                                                             v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeObjectId(Deserializer* deserializer,
+                                              parser::Caret& caret,
+                                              const Type* const type,
+                                              v_char8 bsonTypeCode)
 {
 
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(type);
+      return oatpp::Void(type);
 
     case TypeCode::OBJECT_ID:
     {
@@ -250,7 +250,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObjectId(Des
       auto label = caret.putLabel();
       caret.inc(12);
 
-      return AbstractObjectWrapper(std::make_shared<type::ObjectId>(label.getData()), ObjectId::Class::getType());
+      return oatpp::Void(std::make_shared<type::ObjectId>(label.getData()), ObjectId::Class::getType());
 
     }
 
@@ -261,16 +261,18 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObjectId(Des
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deserializer* deserializer,
-                                                                         parser::Caret& caret,
-                                                                         const Type* const type,
-                                                                         v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
+                                          parser::Caret& caret,
+                                          const Type* const type,
+                                          v_char8 bsonTypeCode)
 {
+
+  typedef oatpp::AbstractList Collection;
 
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(type);
+      return oatpp::Void(type);
 
     case TypeCode::DOCUMENT_ROOT:
     case TypeCode::DOCUMENT_EMBEDDED:
@@ -286,8 +288,8 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
       parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
       auto listWrapper = type->creator();
-      oatpp::data::mapping::type::PolymorphicWrapper<AbstractList>
-        list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      const auto& list = listWrapper.template staticCast<Collection>();
 
       Type* itemType = *type->params.begin();
       v_int32 expectedIndex = 0;
@@ -316,7 +318,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
           return nullptr;
         }
 
-        list->addPolymorphicItem(item);
+        polymorphicDispatcher->addPolymorphicItem(listWrapper, item);
         ++ expectedIndex;
 
       }
@@ -337,7 +339,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
       }
 
       caret.inc(innerCaret.getPosition());
-      return AbstractObjectWrapper(list.getPtr(), list.valueType);
+      return oatpp::Void(list.getPtr(), list.valueType);
 
     }
 
@@ -348,16 +350,18 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(Deserializer* deserializer,
-                                                                              parser::Caret& caret,
-                                                                              const Type* const type,
-                                                                              v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
+                                               parser::Caret& caret,
+                                               const Type* const type,
+                                               v_char8 bsonTypeCode)
 {
+
+  typedef oatpp::AbstractFields Collection;
 
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(type);
+      return oatpp::Void(type);
 
     case TypeCode::DOCUMENT_ROOT:
     case TypeCode::DOCUMENT_EMBEDDED:
@@ -373,8 +377,8 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
       parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
       auto mapWrapper = type->creator();
-      oatpp::data::mapping::type::PolymorphicWrapper<AbstractFieldsMap>
-        map(std::static_pointer_cast<AbstractFieldsMap>(mapWrapper.getPtr()), mapWrapper.valueType);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      const auto& map = mapWrapper.template staticCast<Collection>();
 
       auto it = type->params.begin();
       Type* keyType = *it ++;
@@ -393,7 +397,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
           return nullptr;
         }
 
-        map->putPolymorphicItem(key, deserializer->deserialize(innerCaret, valueType, valueTypeCode));
+        polymorphicDispatcher->addPolymorphicItem(mapWrapper, key, deserializer->deserialize(innerCaret, valueType, valueTypeCode));
 
       }
 
@@ -413,7 +417,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
       }
 
       caret.inc(innerCaret.getPosition());
-      return AbstractObjectWrapper(map.getPtr(), map.valueType);
+      return oatpp::Void(map.getPtr(), map.valueType);
 
     }
 
@@ -424,16 +428,16 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deserializer* deserializer,
-                                                                           parser::Caret& caret,
-                                                                           const Type* const type,
-                                                                           v_char8 bsonTypeCode)
+oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
+                                            parser::Caret& caret,
+                                            const Type* const type,
+                                            v_char8 bsonTypeCode)
 {
 
   switch(bsonTypeCode) {
 
     case TypeCode::NULL_VALUE:
-      return AbstractObjectWrapper(type);
+      return oatpp::Void(type);
 
     case TypeCode::DOCUMENT_ROOT:
     case TypeCode::DOCUMENT_EMBEDDED:
@@ -449,7 +453,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
       parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
       auto object = type->creator();
-      const auto& fieldsMap = type->properties->getMap();
+      const auto& fieldsMap = type->propertiesGetter()->getMap();
 
       while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
@@ -509,7 +513,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserialize(parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode) {
+oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode) {
   auto id = type->classId.id;
   auto& method = m_methods[id];
   if(method) {

@@ -32,15 +32,13 @@ namespace oatpp { namespace mongo { namespace test {
 
 class TestUtils {
 public:
-  typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
-public:
 
   static void writeBinary(const void* voiddata, v_int32 length, const char* tag = "");
   static void writeBinary(const oatpp::String& data, const char* tag = "");
 
   static void hardcodeBinary(const oatpp::String& data, const oatpp::String& varname);
 
-  static oatpp::String writeJsonToBsonCXX(const AbstractObjectWrapper& polymorph);
+  static oatpp::String writeJsonToBsonCXX(const oatpp::Void& polymorph);
 
 };
 

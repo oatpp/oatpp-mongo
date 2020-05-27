@@ -33,9 +33,9 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class WriteConcern : public oatpp::Object {
+class WriteConcern : public oatpp::DTO {
 
-  DTO_INIT(WriteConcern, Object)
+  DTO_INIT(WriteConcern, DTO)
 
   DTO_FIELD(String, w, "w");
   DTO_FIELD(Boolean, j, "j");

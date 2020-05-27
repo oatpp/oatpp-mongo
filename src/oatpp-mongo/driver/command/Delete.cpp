@@ -33,7 +33,7 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 Delete::Delete(const oatpp::String &databaseName,
                const oatpp::String &collectionName,
-               const WriteConcern::ObjectWrapper &writeConcern)
+               const oatpp::Object<WriteConcern> &writeConcern)
   : m_deleteDto(DeleteDto::createShared())
   , m_documents(std::make_shared<wire::DocumentSequenceSection>("delete"))
 {

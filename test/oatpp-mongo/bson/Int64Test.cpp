@@ -40,9 +40,9 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /* Complete object */
-class Obj : public oatpp::Object {
+class Obj : public oatpp::DTO {
 
-DTO_INIT(Obj, Object)
+DTO_INIT(Obj, DTO)
 
   DTO_FIELD(Int64, f1) = std::numeric_limits<v_int64>::max();
   DTO_FIELD(Int64, f2) = std::numeric_limits<v_int64>::min() + 64;
@@ -52,9 +52,9 @@ DTO_INIT(Obj, Object)
 };
 
 /* No first field */
-class Sub1 : public oatpp::Object {
+class Sub1 : public oatpp::DTO {
 
-DTO_INIT(Sub1, Object)
+DTO_INIT(Sub1, DTO)
 
   DTO_FIELD(Int64, f2);
   DTO_FIELD(Int64, f3);
@@ -63,9 +63,9 @@ DTO_INIT(Sub1, Object)
 };
 
 /* No second field */
-class Sub2 : public oatpp::Object {
+class Sub2 : public oatpp::DTO {
 
-DTO_INIT(Sub2, Object)
+DTO_INIT(Sub2, DTO)
 
   DTO_FIELD(Int64, f1);
   DTO_FIELD(Int64, f3);
@@ -74,9 +74,9 @@ DTO_INIT(Sub2, Object)
 };
 
 /* No null field */
-class Sub3 : public oatpp::Object {
+class Sub3 : public oatpp::DTO {
 
-DTO_INIT(Sub3, Object)
+DTO_INIT(Sub3, DTO)
 
   DTO_FIELD(Int64, f1);
   DTO_FIELD(Int64, f2);
@@ -85,9 +85,9 @@ DTO_INIT(Sub3, Object)
 };
 
 /* No last field */
-class Sub4 : public oatpp::Object {
+class Sub4 : public oatpp::DTO {
 
-DTO_INIT(Sub4, Object)
+DTO_INIT(Sub4, DTO)
 
   DTO_FIELD(Int64, f1);
   DTO_FIELD(Int64, f2);
@@ -99,9 +99,9 @@ DTO_INIT(Sub4, Object)
 // Unsigned
 
 /* Complete object */
-class UObj : public oatpp::Object {
+class UObj : public oatpp::DTO {
 
-DTO_INIT(UObj, Object)
+DTO_INIT(UObj, DTO)
 
   DTO_FIELD(UInt64, f1) = std::numeric_limits<v_uint64>::max();
   DTO_FIELD(UInt64, f2) = std::numeric_limits<v_uint64>::max() - 64;
@@ -111,9 +111,9 @@ DTO_INIT(UObj, Object)
 };
 
 /* No first field */
-class USub1 : public oatpp::Object {
+class USub1 : public oatpp::DTO {
 
-DTO_INIT(USub1, Object)
+DTO_INIT(USub1, DTO)
 
   DTO_FIELD(UInt64, f2);
   DTO_FIELD(UInt64, f3);
@@ -122,9 +122,9 @@ DTO_INIT(USub1, Object)
 };
 
 /* No second field */
-class USub2 : public oatpp::Object {
+class USub2 : public oatpp::DTO {
 
-DTO_INIT(USub2, Object)
+DTO_INIT(USub2, DTO)
 
   DTO_FIELD(UInt64, f1);
   DTO_FIELD(UInt64, f3);
@@ -133,9 +133,9 @@ DTO_INIT(USub2, Object)
 };
 
 /* No null field */
-class USub3 : public oatpp::Object {
+class USub3 : public oatpp::DTO {
 
-DTO_INIT(USub3, Object)
+DTO_INIT(USub3, DTO)
 
   DTO_FIELD(UInt64, f1);
   DTO_FIELD(UInt64, f2);
@@ -144,9 +144,9 @@ DTO_INIT(USub3, Object)
 };
 
 /* No last field */
-class USub4 : public oatpp::Object {
+class USub4 : public oatpp::DTO {
 
-DTO_INIT(USub4, Object)
+DTO_INIT(USub4, DTO)
 
   DTO_FIELD(UInt64, f1);
   DTO_FIELD(UInt64, f2);
@@ -181,7 +181,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub0...");
-      auto sub = bsonMapper.readFromString<Obj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Obj>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -193,7 +193,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub1...");
-      auto sub = bsonMapper.readFromString<Sub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub1>>(bson);
 
       OATPP_ASSERT(sub->f2 == obj->f2);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -204,7 +204,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub2...");
-      auto sub = bsonMapper.readFromString<Sub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub2>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -215,7 +215,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub3...");
-      auto sub = bsonMapper.readFromString<Sub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub3>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -226,7 +226,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "sub4...");
-      auto sub = bsonMapper.readFromString<Sub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<Sub4>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -276,7 +276,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "usub0...");
-      auto sub = bsonMapper.readFromString<UObj>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<UObj>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -288,7 +288,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "usub1...");
-      auto sub = bsonMapper.readFromString<USub1>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<USub1>>(bson);
 
       OATPP_ASSERT(sub->f2 == obj->f2);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -299,7 +299,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "usub2...");
-      auto sub = bsonMapper.readFromString<USub2>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<USub2>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -310,7 +310,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "usub3...");
-      auto sub = bsonMapper.readFromString<USub3>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<USub3>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);
@@ -321,7 +321,7 @@ void Int64Test::onRun() {
 
     {
       OATPP_LOGI(TAG, "usub4...");
-      auto sub = bsonMapper.readFromString<USub4>(bson);
+      auto sub = bsonMapper.readFromString<oatpp::Object<USub4>>(bson);
 
       OATPP_ASSERT(sub->f1 == obj->f1);
       OATPP_ASSERT(sub->f2 == obj->f2);

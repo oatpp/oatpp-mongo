@@ -37,9 +37,9 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class ObjWithInlineDocument : public oatpp::Object {
+class ObjWithInlineDocument : public oatpp::DTO {
 
-  DTO_INIT(ObjWithInlineDocument, Object)
+  DTO_INIT(ObjWithInlineDocument, DTO)
 
   DTO_FIELD(String, f1) = "Hello";
   DTO_FIELD(oatpp::mongo::bson::InlineDocument, inlineDocument);
@@ -47,9 +47,9 @@ class ObjWithInlineDocument : public oatpp::Object {
 
 };
 
-class ObjWithInlineArray : public oatpp::Object {
+class ObjWithInlineArray : public oatpp::DTO {
 
-  DTO_INIT(ObjWithInlineArray, Object)
+  DTO_INIT(ObjWithInlineArray, DTO)
 
   DTO_FIELD(String, f1) = "Hello";
   DTO_FIELD(oatpp::mongo::bson::InlineArray, inlineArray);
@@ -57,9 +57,9 @@ class ObjWithInlineArray : public oatpp::Object {
 
 };
 
-class InlineObj : public oatpp::Object {
+class InlineObj : public oatpp::DTO {
 
-  DTO_INIT(InlineObj, Object)
+  DTO_INIT(InlineObj, DTO)
 
   DTO_FIELD(String, f1) = "Hello";
   DTO_FIELD(String, f2) = "Inline";
@@ -78,7 +78,7 @@ void InlineDocumentTest::onRun() {
   {
     auto obj = ObjWithInlineDocument::createShared();
     auto bson = bsonMapper.writeToString(obj);
-    auto clone = bsonMapper.readFromString<ObjWithInlineDocument>(bson);
+    auto clone = bsonMapper.readFromString<oatpp::Object<ObjWithInlineDocument>>(bson);
 
     OATPP_ASSERT(clone);
     OATPP_ASSERT(clone->f1 == obj->f1);
@@ -89,7 +89,7 @@ void InlineDocumentTest::onRun() {
   {
     auto obj = ObjWithInlineArray::createShared();
     auto bson = bsonMapper.writeToString(obj);
-    auto clone = bsonMapper.readFromString<ObjWithInlineArray>(bson);
+    auto clone = bsonMapper.readFromString<oatpp::Object<ObjWithInlineArray>>(bson);
 
     OATPP_ASSERT(clone);
     OATPP_ASSERT(clone->f1 == obj->f1);
@@ -105,14 +105,14 @@ void InlineDocumentTest::onRun() {
     obj->inlineDocument = oatpp::mongo::bson::InlineDocument(inlineBson.getPtr());
 
     auto bson = bsonMapper.writeToString(obj);
-    auto clone = bsonMapper.readFromString<ObjWithInlineDocument>(bson);
+    auto clone = bsonMapper.readFromString<oatpp::Object<ObjWithInlineDocument>>(bson);
 
     OATPP_ASSERT(clone);
     OATPP_ASSERT(clone->f1 == obj->f1);
     OATPP_ASSERT(clone->inlineDocument);
     OATPP_ASSERT(clone->f2 == obj->f2);
 
-    auto inlineClone = bsonMapper.readFromString<ObjWithInlineDocument>(clone->inlineDocument.getPtr());
+    auto inlineClone = bsonMapper.readFromString<oatpp::Object<ObjWithInlineDocument>>(clone->inlineDocument.getPtr());
 
     OATPP_ASSERT(inlineClone);
     OATPP_ASSERT(inlineClone->f1 == inlineObj->f1);
@@ -121,28 +121,28 @@ void InlineDocumentTest::onRun() {
   }
 
   {
-    auto inlineArr = oatpp::List<InlineObj::ObjectWrapper>::createShared();
+    auto inlineArr = oatpp::List<oatpp::Object<InlineObj>>::createShared();
     auto item = InlineObj::createShared();
-    inlineArr->pushBack(item);
+    inlineArr->push_back(item);
     auto inlineBson = bsonMapper.writeToString(inlineArr);
 
     auto obj = ObjWithInlineArray::createShared();
     obj->inlineArray = oatpp::mongo::bson::InlineArray(inlineBson.getPtr());
 
     auto bson = bsonMapper.writeToString(obj);
-    auto clone = bsonMapper.readFromString<ObjWithInlineArray>(bson);
+    auto clone = bsonMapper.readFromString<oatpp::Object<ObjWithInlineArray>>(bson);
 
     OATPP_ASSERT(clone);
     OATPP_ASSERT(clone->f1 == obj->f1);
     OATPP_ASSERT(clone->inlineArray);
     OATPP_ASSERT(clone->f2 == obj->f2);
 
-    auto inlineClone = bsonMapper.readFromString<oatpp::List<InlineObj::ObjectWrapper>>(clone->inlineArray.getPtr());
+    auto inlineClone = bsonMapper.readFromString<oatpp::List<oatpp::Object<InlineObj>>>(clone->inlineArray.getPtr());
 
     OATPP_ASSERT(inlineClone);
-    OATPP_ASSERT(inlineClone->count() == 1);
+    OATPP_ASSERT(inlineClone->size() == 1);
 
-    auto itemClone = inlineClone->get(0);
+    auto itemClone = inlineClone[0];
 
     OATPP_ASSERT(itemClone->f1 == item->f1);
     OATPP_ASSERT(itemClone->f2 == item->f2);

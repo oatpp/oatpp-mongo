@@ -102,7 +102,7 @@ void TestUtils::hardcodeBinary(const oatpp::String& data, const oatpp::String& v
 
 }
 
-oatpp::String TestUtils::writeJsonToBsonCXX(const AbstractObjectWrapper& polymorph) {
+oatpp::String TestUtils::writeJsonToBsonCXX(const oatpp::Void& polymorph) {
 
   oatpp::parser::json::mapping::ObjectMapper jsonMapper;
   oatpp::String jsonStr = jsonMapper.writeToString(polymorph);

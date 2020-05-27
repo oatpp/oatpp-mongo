@@ -28,7 +28,7 @@
 
 #include "oatpp-mongo/bson/Utils.hpp"
 
-#include "oatpp/core/data/mapping/type/ListMap.hpp"
+#include "oatpp/core/data/mapping/type/PairList.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
@@ -52,17 +52,6 @@ public:
   typedef oatpp::data::mapping::type::Type Type;
   typedef oatpp::data::mapping::type::Type::Property Property;
   typedef oatpp::data::mapping::type::Type::Properties Properties;
-
-  typedef oatpp::data::mapping::type::Object Object;
-  typedef oatpp::String String;
-
-  template<class T>
-  using PolymorphicWrapper = data::mapping::type::PolymorphicWrapper<T>;
-
-  typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
-  typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
-  typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
-
 public:
 
   /**
@@ -94,7 +83,7 @@ public:
   };
 
 public:
-  typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const, v_char8 bsonTypeCode);
+  typedef oatpp::Void (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const, v_char8 bsonTypeCode);
 private:
   static void skipCString(parser::Caret& caret);
   static void skipSizedElement(parser::Caret& caret, v_int32 additionalBytes = 0);
@@ -102,31 +91,31 @@ private:
 private:
 
   template<class T>
-  static AbstractObjectWrapper deserializePrimitive(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode){
+  static oatpp::Void deserializePrimitive(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode){
 
     (void) deserializer;
     (void) type;
 
     if(bsonTypeCode == TypeCode::NULL_VALUE) {
-      return AbstractObjectWrapper(T::Class::getType());
+      return oatpp::Void(T::Class::getType());
     }
 
-    typename T::ObjectType::ValueType value;
+    typename T::ObjectType value;
     Utils::readPrimitive(caret, value, bsonTypeCode);
-    return AbstractObjectWrapper(T::ObjectType::createAbstract(value), T::ObjectWrapper::Class::getType());
+    return T(value);
 
   }
 
-  static AbstractObjectWrapper deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
-  static AbstractObjectWrapper deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
-  static AbstractObjectWrapper deserializeInlineDocs(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeInlineDocs(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
-  static AbstractObjectWrapper deserializeObjectId(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeObjectId(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
-  static AbstractObjectWrapper deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
-  static AbstractObjectWrapper deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
-  static AbstractObjectWrapper deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
 private:
   std::shared_ptr<Config> m_config;
@@ -142,7 +131,7 @@ public:
   /**
    * Set deserializer method for type.
    * @param classId - &id:oatpp::data::mapping::type::ClassId;.
-   * @param method - `typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const)`.
+   * @param method - `typedef oatpp::Void (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const)`.
    */
   void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
 
@@ -150,9 +139,9 @@ public:
    * Deserialize text.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param type - &id:oatpp::data::mapping::type::Type;
-   * @return - `AbstractObjectWrapper` over deserialized object.
+   * @return - `oatpp::Void` over deserialized object.
    */
-  AbstractObjectWrapper deserialize(parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  oatpp::Void deserialize(parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
   /**
    * Get deserializer config.

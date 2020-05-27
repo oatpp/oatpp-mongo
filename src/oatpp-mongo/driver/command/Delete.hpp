@@ -42,24 +42,24 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 class Delete : public Command {
 private:
 
-  class DeleteDto : public oatpp::Object {
+  class DeleteDto : public oatpp::DTO {
 
-  DTO_INIT(DeleteDto, Object)
+  DTO_INIT(DeleteDto, DTO)
 
     DTO_FIELD(String, collectionName, "delete");
     DTO_FIELD(String, databaseName, "$db");
-    DTO_FIELD(WriteConcern::ObjectWrapper, writeConcern, "writeConcern");
+    DTO_FIELD(Object<WriteConcern>, writeConcern, "writeConcern");
 
   };
 
 private:
-  DeleteDto::ObjectWrapper m_deleteDto;
+  oatpp::Object<DeleteDto> m_deleteDto;
   std::shared_ptr<wire::DocumentSequenceSection> m_documents;
 public:
 
   Delete(const oatpp::String& databaseName,
          const oatpp::String& collectionName,
-         const WriteConcern::ObjectWrapper& writeConcern = nullptr);
+         const oatpp::Object<WriteConcern>& writeConcern = nullptr);
 
   void addDocument(const oatpp::String& document);
 

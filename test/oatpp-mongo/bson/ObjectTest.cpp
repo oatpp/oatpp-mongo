@@ -37,9 +37,9 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Nested1 : public oatpp::Object {
+class Nested1 : public oatpp::DTO {
 
-  DTO_INIT(Nested1, Object)
+  DTO_INIT(Nested1, DTO)
 
   DTO_FIELD(String, f1) = nullptr;
   DTO_FIELD(String, f2) = "Hello";
@@ -47,7 +47,7 @@ class Nested1 : public oatpp::Object {
 
 public:
 
-  static bool cmp(const Nested1::ObjectWrapper& a, const Nested1::ObjectWrapper& b) {
+  static bool cmp(const oatpp::Object<Nested1>& a, const oatpp::Object<Nested1>& b) {
     return  a->f1 == b->f1 &&
             a->f2 == b->f2 &&
             a->f3 == b->f3;
@@ -55,9 +55,9 @@ public:
 
 };
 
-class Nested2 : public oatpp::Object {
+class Nested2 : public oatpp::DTO {
 
-  DTO_INIT(Nested2, Object)
+  DTO_INIT(Nested2, DTO)
 
   DTO_FIELD(String, f1) = "Oat++";
   DTO_FIELD(String, f2) = nullptr;
@@ -65,7 +65,7 @@ class Nested2 : public oatpp::Object {
 
 public:
 
-  static bool cmp(const Nested2::ObjectWrapper& a, const Nested2::ObjectWrapper& b) {
+  static bool cmp(const oatpp::Object<Nested2>& a, const oatpp::Object<Nested2>& b) {
     return  a->f1 == b->f1 &&
             a->f2 == b->f2 &&
             a->f3 == b->f3;
@@ -73,9 +73,9 @@ public:
 
 };
 
-class Nested3 : public oatpp::Object {
+class Nested3 : public oatpp::DTO {
 
-  DTO_INIT(Nested3, Object)
+  DTO_INIT(Nested3, DTO)
 
   DTO_FIELD(String, f1);
   DTO_FIELD(String, f2);
@@ -83,7 +83,7 @@ class Nested3 : public oatpp::Object {
 
 public:
 
-  static bool cmp(const Nested3::ObjectWrapper& a, const Nested3::ObjectWrapper& b) {
+  static bool cmp(const oatpp::Object<Nested3>& a, const oatpp::Object<Nested3>& b) {
     return  a->f1 == b->f1 &&
             a->f2 == b->f2 &&
             a->f3 == b->f3;
@@ -91,9 +91,9 @@ public:
 
 };
 
-class Nested4 : public oatpp::Object {
+class Nested4 : public oatpp::DTO {
 
-  DTO_INIT(Nested4, Object)
+  DTO_INIT(Nested4, DTO)
 
   DTO_FIELD(String, f1) = "DB";
   DTO_FIELD(String, f2) = nullptr;
@@ -101,7 +101,7 @@ class Nested4 : public oatpp::Object {
 
 public:
 
-  static bool cmp(const Nested4::ObjectWrapper& a, const Nested4::ObjectWrapper& b) {
+  static bool cmp(const oatpp::Object<Nested4>& a, const oatpp::Object<Nested4>& b) {
     return  a->f1 == b->f1 &&
             a->f2 == b->f2 &&
             a->f3 == b->f3;
@@ -110,58 +110,58 @@ public:
 };
 
 /* Complete object */
-class Obj : public oatpp::Object {
+class Obj : public oatpp::DTO {
 
-  DTO_INIT(Obj, Object)
+  DTO_INIT(Obj, DTO)
 
-  DTO_FIELD(Nested1::ObjectWrapper, f1) = Nested1::createShared();
-  DTO_FIELD(Nested2::ObjectWrapper, f2) = Nested2::createShared();
-  DTO_FIELD(Nested3::ObjectWrapper, f3) = nullptr;
-  DTO_FIELD(Nested4::ObjectWrapper, f4) = Nested4::createShared();
+  DTO_FIELD(oatpp::Object<Nested1>, f1) = Nested1::createShared();
+  DTO_FIELD(oatpp::Object<Nested2>, f2) = Nested2::createShared();
+  DTO_FIELD(oatpp::Object<Nested3>, f3) = nullptr;
+  DTO_FIELD(oatpp::Object<Nested4>, f4) = Nested4::createShared();
 
 };
 
 /* No first field */
-class Sub1 : public oatpp::Object {
+class Sub1 : public oatpp::DTO {
 
-DTO_INIT(Sub1, Object)
+DTO_INIT(Sub1, DTO)
 
-  DTO_FIELD(Nested2::ObjectWrapper, f2);
-  DTO_FIELD(Nested3::ObjectWrapper, f3);
-  DTO_FIELD(Nested4::ObjectWrapper, f4);
+  DTO_FIELD(oatpp::Object<Nested2>, f2);
+  DTO_FIELD(oatpp::Object<Nested3>, f3);
+  DTO_FIELD(oatpp::Object<Nested4>, f4);
 
 };
 
 /* No second field */
-class Sub2 : public oatpp::Object {
+class Sub2 : public oatpp::DTO {
 
-  DTO_INIT(Sub2, Object)
+  DTO_INIT(Sub2, DTO)
 
-  DTO_FIELD(Nested1::ObjectWrapper, f1);
-  DTO_FIELD(Nested3::ObjectWrapper, f3);
-  DTO_FIELD(Nested4::ObjectWrapper, f4);
+  DTO_FIELD(oatpp::Object<Nested1>, f1);
+  DTO_FIELD(oatpp::Object<Nested3>, f3);
+  DTO_FIELD(oatpp::Object<Nested4>, f4);
 
 };
 
 /* No null field */
-class Sub3 : public oatpp::Object {
+class Sub3 : public oatpp::DTO {
 
-  DTO_INIT(Sub3, Object)
+  DTO_INIT(Sub3, DTO)
 
-  DTO_FIELD(Nested1::ObjectWrapper, f1);
-  DTO_FIELD(Nested2::ObjectWrapper, f2);
-  DTO_FIELD(Nested4::ObjectWrapper, f4);
+  DTO_FIELD(oatpp::Object<Nested1>, f1);
+  DTO_FIELD(oatpp::Object<Nested2>, f2);
+  DTO_FIELD(oatpp::Object<Nested4>, f4);
 
 };
 
 /* No last field */
-class Sub4 : public oatpp::Object {
+class Sub4 : public oatpp::DTO {
 
-  DTO_INIT(Sub4, Object)
+  DTO_INIT(Sub4, DTO)
 
-  DTO_FIELD(Nested1::ObjectWrapper, f1);
-  DTO_FIELD(Nested2::ObjectWrapper, f2);
-  DTO_FIELD(Nested3::ObjectWrapper, f3);
+  DTO_FIELD(oatpp::Object<Nested1>, f1);
+  DTO_FIELD(oatpp::Object<Nested2>, f2);
+  DTO_FIELD(oatpp::Object<Nested3>, f3);
 
 };
 
@@ -188,7 +188,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "sub0...");
-    auto sub = bsonMapper.readFromString<Obj>(bson);
+    auto sub = bsonMapper.readFromString<oatpp::Object<Obj>>(bson);
 
     OATPP_ASSERT(Nested1::cmp(sub->f1, obj->f1));
     OATPP_ASSERT(Nested2::cmp(sub->f2, obj->f2));
@@ -200,7 +200,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "sub1...");
-    auto sub = bsonMapper.readFromString<Sub1>(bson);
+    auto sub = bsonMapper.readFromString<oatpp::Object<Sub1>>(bson);
 
     OATPP_ASSERT(Nested2::cmp(sub->f2, obj->f2));
     OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -211,7 +211,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "sub2...");
-    auto sub = bsonMapper.readFromString<Sub2>(bson);
+    auto sub = bsonMapper.readFromString<oatpp::Object<Sub2>>(bson);
 
     OATPP_ASSERT(Nested1::cmp(sub->f1, obj->f1));
     OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
@@ -222,7 +222,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "sub3...");
-    auto sub = bsonMapper.readFromString<Sub3>(bson);
+    auto sub = bsonMapper.readFromString<oatpp::Object<Sub3>>(bson);
 
     OATPP_ASSERT(Nested1::cmp(sub->f1, obj->f1));
     OATPP_ASSERT(Nested2::cmp(sub->f2, obj->f2));
@@ -233,7 +233,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "sub4...");
-    auto sub = bsonMapper.readFromString<Sub4>(bson);
+    auto sub = bsonMapper.readFromString<oatpp::Object<Sub4>>(bson);
 
     OATPP_ASSERT(Nested1::cmp(sub->f1, obj->f1));
     OATPP_ASSERT(Nested2::cmp(sub->f2, obj->f2));
