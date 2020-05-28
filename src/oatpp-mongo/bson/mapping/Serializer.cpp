@@ -25,8 +25,6 @@
 
 #include "Serializer.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
@@ -37,27 +35,39 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
+  setSerializerMethod(data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
+  setSerializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
+  setSerializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
+  setSerializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
+  setSerializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
+  setSerializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
+  setSerializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
+  setSerializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
+  setSerializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
+  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
+  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
+  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeFieldsMap);
+  setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
+  setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
+
+  //----------------
+  // Collections
+
+  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractVector>);
+  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractList>);
+  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractUnorderedSet>);
+
+  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractFields>);
+  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractUnorderedFields>);
+
+  //----------------
+  // Other
 
   setSerializerMethod(oatpp::mongo::bson::__class::InlineDocument::CLASS_ID, &Serializer::serializeInlineDocument);
   setSerializerMethod(oatpp::mongo::bson::__class::InlineArray::CLASS_ID, &Serializer::serializeInlineArray);
@@ -174,74 +184,28 @@ void Serializer::serializeObjectId(Serializer* serializer,
   }
 }
 
-void Serializer::serializeList(Serializer* serializer,
+void Serializer::serializeEnum(Serializer* serializer,
                                data::stream::ConsistentOutputStream* stream,
                                const data::share::StringKeyLabel& key,
                                const oatpp::Void& polymorph)
 {
 
-  typedef oatpp::AbstractList Collection;
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    polymorph.valueType->polymorphicDispatcher
+  );
 
-  if(polymorph) {
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  serializer->serialize(stream, key, polymorphicDispatcher->toInterpretation(polymorph, e));
 
-    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_ARRAY, key);
-
-    data::stream::BufferOutputStream innerStream;
-
-    const auto& list = polymorph.staticCast<Collection>();
-    v_int32 index = 0;
-
-    for(auto& value : *list) {
-      if (value || serializer->getConfig()->includeNullFields) {
-        serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), value);
-        index ++;
-      }
-    }
-
-    bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
-    stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
-    stream->writeCharSimple(0);
-
-  } else if(key) {
-    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
-  } else {
-    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return;
   }
 
-}
-
-void Serializer::serializeFieldsMap(Serializer* serializer,
-                                    data::stream::ConsistentOutputStream* stream,
-                                    const data::share::StringKeyLabel& key,
-                                    const oatpp::Void& polymorph)
-{
-
-  typedef oatpp::AbstractFields Collection;
-
-  if(polymorph) {
-
-    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
-
-    data::stream::BufferOutputStream innerStream;
-
-    const auto& map = polymorph.staticCast<Collection>();
-
-    for(auto& pair : *map) {
-      const auto& value = pair.second;
-      if(value || serializer->getConfig()->includeNullFields) {
-        const auto& key = pair.first;
-        serializer->serialize(&innerStream, key, value);
-      }
-    }
-
-    bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
-    stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
-    stream->writeCharSimple(0);
-
-  } else if(key) {
-    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
-  } else {
-    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeFieldsMap()]: Error. null object with null key.");
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+    default:
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
   }
 
 }

@@ -30,18 +30,9 @@
 #include "oatpp-mongo/bson/Types.hpp"
 
 #include "oatpp/core/data/share/MemoryLabel.hpp"
-
-#include "oatpp/core/data/mapping/type/PairList.hpp"
-#include "oatpp/core/data/mapping/type/List.hpp"
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/collection/LinkedList.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/Types.hpp"
-
-#include <vector>
 
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
@@ -100,7 +91,8 @@ private:
   static void serializePrimitive(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::share::StringKeyLabel& key,
-                                 const oatpp::Void& polymorph){
+                                 const oatpp::Void& polymorph)
+  {
     (void) serializer;
 
     if(!key) {
@@ -113,6 +105,76 @@ private:
     } else {
       bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
     }
+  }
+
+  template<class Collection>
+  static void serializeArray(Serializer* serializer,
+                             data::stream::ConsistentOutputStream* stream,
+                             const data::share::StringKeyLabel& key,
+                             const oatpp::Void& polymorph)
+  {
+
+    if(polymorph) {
+
+      bson::Utils::writeKey(stream, TypeCode::DOCUMENT_ARRAY, key);
+
+      data::stream::BufferOutputStream innerStream;
+
+      const auto& list = polymorph.staticCast<Collection>();
+      v_int32 index = 0;
+
+      for(auto& value : *list) {
+        if (value || serializer->getConfig()->includeNullFields) {
+          serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), value);
+          index ++;
+        }
+      }
+
+      bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
+      stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
+      stream->writeCharSimple(0);
+
+    } else if(key) {
+      bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+    } else {
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
+    }
+
+  }
+
+  template<class Collection>
+  static void serializeKeyValue(Serializer* serializer,
+                                data::stream::ConsistentOutputStream* stream,
+                                const data::share::StringKeyLabel& key,
+                                const oatpp::Void& polymorph)
+  {
+
+    if(polymorph) {
+
+      bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
+
+      data::stream::BufferOutputStream innerStream;
+
+      const auto& map = polymorph.staticCast<Collection>();
+
+      for(auto& pair : *map) {
+        const auto& value = pair.second;
+        if(value || serializer->getConfig()->includeNullFields) {
+          const auto& key = pair.first;
+          serializer->serialize(&innerStream, key, value);
+        }
+      }
+
+      bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
+      stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
+      stream->writeCharSimple(0);
+
+    } else if(key) {
+      bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+    } else {
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeKeyValue()]: Error. null object with null key.");
+    }
+
   }
 
   static void serializeString(Serializer* serializer,
@@ -141,15 +203,10 @@ private:
                                 const data::share::StringKeyLabel& key,
                                 const oatpp::Void& polymorph);
 
-  static void serializeList(Serializer* serializer,
+  static void serializeEnum(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const data::share::StringKeyLabel& key,
                             const oatpp::Void& polymorph);
-
-  static void serializeFieldsMap(Serializer* serializer,
-                                 data::stream::ConsistentOutputStream* stream,
-                                 const data::share::StringKeyLabel& key,
-                                 const oatpp::Void& polymorph);
 
   static void serializeObject(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
