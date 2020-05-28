@@ -79,6 +79,7 @@ private:
   static void skipCString(parser::Caret& caret);
   static void skipSizedElement(parser::Caret& caret, v_int32 additionalBytes = 0);
   static void skipElement(parser::Caret& caret, v_char8 bsonTypeCode);
+  static const Type* guessType(v_char8 bsonTypeCode);
 private:
 
   template<class T>
@@ -269,6 +270,7 @@ private:
 
   static oatpp::Void deserializeObjectId(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
+  static oatpp::Void deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
   static oatpp::Void deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
   static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 

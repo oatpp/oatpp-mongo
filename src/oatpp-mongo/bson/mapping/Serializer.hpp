@@ -203,6 +203,11 @@ private:
                                 const data::share::StringKeyLabel& key,
                                 const oatpp::Void& polymorph);
 
+  static void serializeAny(Serializer* serializer,
+                           data::stream::ConsistentOutputStream* stream,
+                           const data::share::StringKeyLabel& key,
+                           const oatpp::Void& polymorph);
+
   static void serializeEnum(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const data::share::StringKeyLabel& key,

@@ -53,6 +53,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
   setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
+  setSerializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
   setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
   setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
 
@@ -182,6 +183,25 @@ void Serializer::serializeObjectId(Serializer* serializer,
   } else {
     bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   }
+}
+
+void Serializer::serializeAny(Serializer* serializer,
+                              data::stream::ConsistentOutputStream* stream,
+                              const data::share::StringKeyLabel& key,
+                              const oatpp::Void& polymorph)
+{
+
+  if(polymorph) {
+
+    auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
+    serializer->serialize(stream, key, oatpp::Void(anyHandle->ptr, anyHandle->type));
+
+  } else if(key) {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+  } else {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeAny()]: Error. null object with null key.");
+  }
+
 }
 
 void Serializer::serializeEnum(Serializer* serializer,

@@ -51,6 +51,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializePrimitive<Float64>);
   setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
+  setDeserializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
   setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Deserializer::deserializeEnum);
   setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
 
@@ -129,6 +130,39 @@ void Deserializer::skipElement(parser::Caret& caret, v_char8 bsonTypeCode) {
     default:
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::skipElement()]: Error. Unknown element type-code.");
       return;
+  }
+
+}
+
+const Type* Deserializer::guessType(v_char8 bsonTypeCode) {
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::DOUBLE:              return Float64::Class::getType();
+    case TypeCode::STRING:              return String::Class::getType();
+    case TypeCode::DOCUMENT_EMBEDDED:   return Fields<Any>::Class::getType();
+    case TypeCode::DOCUMENT_ARRAY:      return List<Any>::Class::getType();
+    case TypeCode::BINARY:              return nullptr;
+    case TypeCode::UNDEFINED:           return nullptr;
+    case TypeCode::OBJECT_ID:           return ObjectId::Class::getType();
+    case TypeCode::BOOLEAN:             return Boolean::Class::getType();
+    case TypeCode::DATE_TIME:           return nullptr;
+    case TypeCode::NULL_VALUE:          return nullptr;
+    case TypeCode::REGEXP:              return nullptr;
+    case TypeCode::BD_POINTER:          return nullptr;
+    case TypeCode::JAVASCRIPT_CODE:     return nullptr;
+    case TypeCode::SYMBOL:              return nullptr;
+    case TypeCode::JAVASCRIPT_CODE_WS:  return nullptr;
+    case TypeCode::INT_32:              return Int32::Class::getType();
+    case TypeCode::TIMESTAMP:           return UInt64::Class::getType();
+    case TypeCode::INT_64:              return Int64::Class::getType();
+    case TypeCode::DECIMAL_128:         return nullptr;
+
+    case TypeCode::MIN_KEY:             return nullptr;
+    case TypeCode::MAX_KEY:             return nullptr;
+
+    default:
+      return nullptr;
   }
 
 }
@@ -269,6 +303,27 @@ oatpp::Void Deserializer::deserializeObjectId(Deserializer* deserializer,
       caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeObjectId()]: Error. Invalid type code.");
       return nullptr;
   }
+
+}
+
+oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer,
+                                         parser::Caret& caret,
+                                         const Type* const type,
+                                         v_char8 bsonTypeCode)
+{
+
+  if(bsonTypeCode != TypeCode::NULL_VALUE) {
+
+    const Type *const fieldType = guessType(bsonTypeCode);
+    if (fieldType != nullptr) {
+      auto fieldValue = deserializer->deserialize(caret, fieldType, bsonTypeCode);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      return oatpp::Void(anyHandle, Any::Class::getType());
+    }
+
+  }
+
+  return oatpp::Void(Any::Class::getType());
 
 }
 
