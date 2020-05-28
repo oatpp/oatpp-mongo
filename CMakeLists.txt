@@ -87,25 +87,6 @@ if(OATPP_DIR_LIB)
 endif()
 
 ###################################################################################################
-## get dependencies
-
-message("\n############################################################################")
-message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
-
-##############################
-## Find libmongocxx dependency
-
-find_package(mongocxx REQUIRED)
-
-message("LIBBSONCXX_INCLUDE_DIRS=${LIBBSONCXX_INCLUDE_DIRS}")
-message("LIBBSONCXX_LIBRARIES=${LIBBSONCXX_LIBRARIES}")
-
-message("LIBMONGOCXX_INCLUDE_DIRS=${LIBMONGOCXX_INCLUDE_DIRS}")
-message("LIBMONGOCXX_LIBRARIES=${LIBMONGOCXX_LIBRARIES}")
-
-message("\n############################################################################\n")
-
-###################################################################################################
 ## define targets
 
 include(cmake/module-utils.cmake)

@@ -46,16 +46,6 @@ target_include_directories(${OATPP_THIS_MODULE_NAME}
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-if (TARGET mongo::mongocxx_shared)
-    target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC mongo::mongocxx_shared
-    )
-elseif(TARGET mongo::mongocxx_static)
-    target_link_libraries(${OATPP_THIS_MODULE_NAME}
-            PUBLIC mongo::mongocxx_static
-    )
-endif()
-
 #######################################################################################################
 ## install targets
 

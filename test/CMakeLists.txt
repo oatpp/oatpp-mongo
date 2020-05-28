@@ -48,6 +48,39 @@ target_link_libraries(module-tests
         PRIVATE ${OATPP_THIS_MODULE_NAME}
 )
 
+###################################################################################################
+## get dependencies
+
+message("\n############################################################################")
+message("## ${OATPP_THIS_MODULE_NAME} module-tests. Resolving dependencies...\n")
+
+message("\n"
+        "############################################################################\n"
+        "# NOTE:                                                                    #\n"
+        "#                                                                          #\n"
+        "#    oatpp-mongo links libmongoxcc for module tests ONLY!!!                #\n"
+        "#    TO BUILD oatpp-mongo with NO libmongoxcc use cmake option:            #\n"
+        "#                                                                          #\n"
+        "#        -------------->  -DOATPP_BUILD_TESTS=OFF  <--------------         #\n"
+        "#                                                                          #\n"
+        "############################################################################\n"
+        "\n")
+
+##############################
+## Find libmongocxx dependency
+
+find_package(mongocxx REQUIRED)
+
+message("LIBBSONCXX_INCLUDE_DIRS=${LIBBSONCXX_INCLUDE_DIRS}")
+message("LIBBSONCXX_LIBRARIES=${LIBBSONCXX_LIBRARIES}")
+
+message("LIBMONGOCXX_INCLUDE_DIRS=${LIBMONGOCXX_INCLUDE_DIRS}")
+message("LIBMONGOCXX_LIBRARIES=${LIBMONGOCXX_LIBRARIES}")
+
+message("\n############################################################################\n")
+
+###################################################################################################
+
 if (TARGET mongo::mongocxx_shared)
     target_link_libraries(module-tests
             PUBLIC mongo::mongocxx_shared
