@@ -138,6 +138,7 @@ const Type* Deserializer::guessType(v_char8 bsonTypeCode) {
 
   switch(bsonTypeCode) {
 
+    case TypeCode::DOCUMENT_ROOT:       return Fields<Any>::Class::getType();
     case TypeCode::DOUBLE:              return Float64::Class::getType();
     case TypeCode::STRING:              return String::Class::getType();
     case TypeCode::DOCUMENT_EMBEDDED:   return Fields<Any>::Class::getType();

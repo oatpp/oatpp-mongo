@@ -225,6 +225,8 @@ void ListTest::onRun() {
 
   {
 
+    OATPP_LOGI(TAG, "Mongo array to list...");
+
     oatpp::String s0 = "Hello";
     oatpp::String s1 = "World!";
     oatpp::String s2 = "Oat++ & Mongo";
@@ -251,6 +253,63 @@ void ListTest::onRun() {
     OATPP_ASSERT(deList[1] == s1);
     OATPP_ASSERT(deList[2] == s2);
 
+    OATPP_LOGI(TAG, "OK");
+
+  }
+
+  {
+    OATPP_LOGI(TAG, "Mongo array to Vector...");
+
+    auto bson = bsonMapper.writeToString(oatpp::Vector<oatpp::String>({
+      "hello", "world", "vector"
+    }));
+
+    auto c = bsonMapper.readFromString<oatpp::Vector<oatpp::String>>(bson);
+    OATPP_ASSERT(c);
+    OATPP_ASSERT(c->size() == 3);
+    OATPP_ASSERT(c[0] == "hello");
+    OATPP_ASSERT(c[1] == "world");
+    OATPP_ASSERT(c[2] == "vector");
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Mongo array to UnorderedSet...");
+
+    auto bson = bsonMapper.writeToString(oatpp::UnorderedSet<oatpp::String>({
+      "hello", "world", "unordered_set"
+    }));
+
+    auto c = bsonMapper.readFromString<oatpp::UnorderedSet<oatpp::String>>(bson);
+    OATPP_ASSERT(c);
+    OATPP_ASSERT(c->size() == 3);
+    OATPP_ASSERT(c["hello"]);
+    OATPP_ASSERT(c["world"]);
+    OATPP_ASSERT(c["unordered_set"]);
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Mongo array to Any...");
+
+    auto bson = bsonMapper.writeToString(oatpp::Any(
+      oatpp::List<oatpp::Any>({oatpp::String("hello"), oatpp::String("world"), oatpp::String("any")})
+    ));
+
+    auto any = bsonMapper.readFromString<oatpp::Any>(bson);
+    OATPP_ASSERT(any);
+    OATPP_ASSERT(any.getStoredType() == oatpp::Fields<oatpp::Any>::Class::getType());
+    auto c = any.retrieve<oatpp::Fields<oatpp::Any>>();
+    OATPP_ASSERT(c);
+    OATPP_ASSERT(c->size() == 3);
+
+    OATPP_ASSERT(c["0"].retrieve<oatpp::String>() == "hello");
+    OATPP_ASSERT(c["1"].retrieve<oatpp::String>() == "world");
+    OATPP_ASSERT(c["2"].retrieve<oatpp::String>() == "any");
+
+    OATPP_LOGI(TAG, "OK");
   }
 
 }
