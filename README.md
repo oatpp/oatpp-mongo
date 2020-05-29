@@ -17,7 +17,7 @@ More about Oat++:
 
 ## How To Build
 
-`oatpp-mongo` has no extrernal dependencies - *The main oatpp module is still required*.  
+`oatpp-mongo` has no extrernal dependencies (*The main oatpp module is still required*).  
 `libmongoxcc` is used (and linked) in module **tests only**. Use `-DOATPP_BUILD_TESTS=OFF` option to build without tests and without dependency on `libmongoxcc`.
 
 ### Install oatpp-mongo
