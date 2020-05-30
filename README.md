@@ -1,4 +1,4 @@
-# oatpp-mongo 
+# oatpp-mongo [![Build Status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp-mongo?branchName=master)](https://dev.azure.com/lganzzzo/lganzzzo/_build/latest?definitionId=26&branchName=master)
 
 ---
 **NOTE:**  
