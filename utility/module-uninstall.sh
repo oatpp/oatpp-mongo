@@ -1,7 +1,7 @@
 #!/bin/sh
 
 MODULE_NAME="oatpp-mongo"
-MODULE_VERSION="0.19.1"
+MODULE_VERSION="1.1.0"
 
 echo "remove include folder: '/usr/local/include/oatpp-$MODULE_VERSION/$MODULE_NAME'"
 rm -rf "/usr/local/include/oatpp-$MODULE_VERSION/$MODULE_NAME"
