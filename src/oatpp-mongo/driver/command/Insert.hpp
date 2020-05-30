@@ -39,6 +39,9 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Insert command.
+ */
 class Insert : public Command {
 private:
 

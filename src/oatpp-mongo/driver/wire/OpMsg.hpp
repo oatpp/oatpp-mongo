@@ -34,6 +34,9 @@
 
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
+/**
+ * Section of OpMsg.
+ */
 struct Section {
 public:
   static constexpr v_uint8 TYPE_BODY = 0;
@@ -53,6 +56,9 @@ public:
 
 };
 
+/**
+ * OpMsg.
+ */
 struct OpMsg {
 public:
 

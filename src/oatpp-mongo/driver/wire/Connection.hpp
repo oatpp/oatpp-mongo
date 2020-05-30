@@ -31,6 +31,9 @@
 
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
+/**
+ * MongoDB connection.
+ */
 class Connection {
 private:
   std::shared_ptr<data::stream::IOStream> m_connection;

@@ -189,8 +189,21 @@ namespace __class {
 
 }
 
+/**
+ * Inline Document - is a binary buffer containing a valid BSON document. <br>
+ * May be useful in some cases.
+ */
 typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineDocument> InlineDocument;
+
+/**
+ * Inline Array - is a binary buffer containing a valid BSON Array. <br>
+ * May be useful in some cases.
+ */
 typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::InlineArray> InlineArray;
+
+/**
+ * ObjectId as oatpp primitive type.
+ */
 typedef oatpp::data::mapping::type::Primitive<type::ObjectId, __class::ObjectId> ObjectId;
 
 }}}

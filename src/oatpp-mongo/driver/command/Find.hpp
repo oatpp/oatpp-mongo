@@ -39,6 +39,9 @@ namespace oatpp { namespace mongo { namespace driver { namespace command {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Find command.
+ */
 class Find : public Command {
 private:
 

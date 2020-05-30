@@ -37,7 +37,7 @@
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
 /**
- * Json Serializer.
+ * BSON Serializer.
  * Serializes oatpp DTO object to bson. See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/).
  */
 class Serializer {

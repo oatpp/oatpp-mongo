@@ -34,7 +34,7 @@
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
 /**
- * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
+ * BSON ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from BSON.
  * See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/). <br>
  * Extends &id:oatpp::base::Countable;, &id:oatpp::data::mapping::ObjectMapper;.
  */

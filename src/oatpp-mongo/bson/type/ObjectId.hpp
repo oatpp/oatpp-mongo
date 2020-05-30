@@ -31,26 +31,57 @@
 
 namespace oatpp { namespace mongo { namespace bson { namespace type {
 
+/**
+ * BSON ObjectId implementation.
+ */
 class ObjectId : public oatpp::base::Countable {
 private:
   static const std::string PROCESS_UNIQUE;
   static std::atomic<v_uint64> COUNTER;
   static std::string seedProcessUnique();
   static v_uint64 seedCounter();
-private:
+public:
+  /**
+   * Size of ObjectId data.
+   */
   static constexpr v_buff_size DATA_SIZE = 12;
 private:
   v_char8 m_data[DATA_SIZE];
 public:
 
+  /**
+   * Constructor. Creates new ObjectId.
+   */
   ObjectId();
+
+  /**
+   * Constructor. Creates ObjectId from byte array.
+   * @param m_data
+   */
   ObjectId(v_char8 m_data[DATA_SIZE]);
 
+  /**
+   * Get raw data of ObjectId.
+   * @return
+   */
   const p_char8 getData() const;
+
+  /**
+   * Get size of ObjectId data.
+   * @return - &l:ObjectId::DATA_SIZE;.
+   */
   v_buff_size getSize() const;
 
+  /**
+   * Get ObjectId timestamp.
+   * @return
+   */
   v_uint32 getTimestamp() const;
 
+  /**
+   * To hex string.
+   * @return
+   */
   oatpp::String toString() const;
 
   bool operator==(const ObjectId &other) const;

@@ -33,6 +33,9 @@
 
 namespace oatpp { namespace mongo { namespace driver { namespace command {
 
+/**
+ * Superclass of MongoDB commands.
+ */
 class Command {
 public:
   typedef bson::mapping::ObjectMapper ObjectMapper;

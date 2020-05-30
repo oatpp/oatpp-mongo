@@ -35,7 +35,7 @@
 namespace oatpp { namespace mongo { namespace bson { namespace mapping {
 
 /**
- * Json Deserializer.
+ * BSON Deserializer.
  * Deserialize oatpp DTO object from bson. See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/).
  */
 class Deserializer {
@@ -218,7 +218,7 @@ private:
         auto it = type->params.begin();
         Type* keyType = *it ++;
         if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
-          throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserializeFieldsMap()]: Invalid json map key. Key should be String");
+          throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserializeFieldsMap()]: Invalid bson map key. Key should be String");
         }
         Type* valueType = *it;
 

@@ -50,6 +50,9 @@ public:
 
 };
 
+/**
+ * MongoDB wire message.
+ */
 struct Message {
 
   Message() = default;

@@ -34,6 +34,9 @@
 
 namespace oatpp { namespace mongo { namespace bson {
 
+/**
+ * Utils for BSON serialization/deserialization.
+ */
 class Utils {
 public:
   typedef data::stream::ConsistentOutputStream ConsistentOutputStream;
