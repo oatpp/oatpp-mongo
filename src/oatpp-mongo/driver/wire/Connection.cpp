@@ -40,7 +40,7 @@ v_io_size Connection::write(const Message& message) {
     throw std::runtime_error("[oatpp::mongo::driver::wire::Connection::write()]: Error. Invalid message header.");
   }
 
-  data::stream::BufferOutputStream stream(16, 16);
+  data::stream::BufferOutputStream stream(16);
   message.header.writeToStream(&stream);
 
   auto res1 = m_connection->writeExactSizeDataSimple(stream.getData(), stream.getCurrentPosition());
