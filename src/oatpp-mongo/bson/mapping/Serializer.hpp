@@ -42,9 +42,8 @@ namespace oatpp { namespace mongo { namespace bson { namespace mapping {
  */
 class Serializer {
 public:
-  typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::Type::Property Property;
-  typedef oatpp::data::mapping::type::Type::Properties Properties;
+  typedef oatpp::BaseObject::Property Property;
+  typedef oatpp::BaseObject::Properties Properties;
 public:
   /**
    * Serializer config.

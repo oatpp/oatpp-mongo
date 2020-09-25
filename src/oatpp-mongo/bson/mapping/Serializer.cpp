@@ -210,7 +210,7 @@ void Serializer::serializeEnum(Serializer* serializer,
                                const oatpp::Void& polymorph)
 {
 
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     polymorph.valueType->polymorphicDispatcher
   );
 
@@ -242,8 +242,9 @@ void Serializer::serializeObject(Serializer* serializer,
 
     data::stream::BufferOutputStream innerStream;
 
-    auto fields = polymorph.valueType->propertiesGetter()->getList();
-    oatpp::DTO* object = static_cast<oatpp::DTO*>(polymorph.get());
+    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(polymorph.valueType->polymorphicDispatcher);
+    auto fields = dispatcher->getProperties()->getList();
+    auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
 
     for (auto const &field : fields) {
 

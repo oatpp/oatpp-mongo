@@ -334,7 +334,7 @@ oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer,
                                           v_char8 bsonTypeCode)
 {
 
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     type->polymorphicDispatcher
   );
 
@@ -385,8 +385,9 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
 
       parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
-      auto object = type->creator();
-      const auto& fieldsMap = type->propertiesGetter()->getMap();
+      auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto object = dispatcher->createObject();
+      const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
       while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
@@ -402,7 +403,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
         if(fieldIterator != fieldsMap.end()){
 
           auto field = fieldIterator->second;
-          field->set(object.get(), deserializer->deserialize(innerCaret, field->type, valueType));
+          field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(innerCaret, field->type, valueType));
 
         } else if (deserializer->getConfig()->allowUnknownFields) {
           skipElement(innerCaret, valueType);

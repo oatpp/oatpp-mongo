@@ -158,7 +158,7 @@ void testMsg() {
   oatpp::mongo::bson::mapping::ObjectMapper objectMapper;
 
   auto connectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", 27017);
-  auto connection = connectionProvider->getConnection();
+  auto connection = connectionProvider->get();
 
   oatpp::mongo::driver::wire::Connection dbConnection(connection);
 

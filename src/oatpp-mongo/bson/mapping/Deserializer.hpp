@@ -40,9 +40,8 @@ namespace oatpp { namespace mongo { namespace bson { namespace mapping {
  */
 class Deserializer {
 public:
-  typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::Type::Property Property;
-  typedef oatpp::data::mapping::type::Type::Properties Properties;
+  typedef oatpp::BaseObject::Property Property;
+  typedef oatpp::BaseObject::Properties Properties;
 public:
 
   /**
@@ -123,11 +122,11 @@ private:
 
         parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
-        auto listWrapper = type->creator();
-        auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+        auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+        auto listWrapper = polymorphicDispatcher->createObject();
         const auto& list = listWrapper.template staticCast<Collection>();
 
-        Type* itemType = *type->params.begin();
+        const Type* itemType = *type->params.begin();
         v_int32 expectedIndex = 0;
         while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
@@ -211,17 +210,17 @@ private:
 
         parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
 
-        auto mapWrapper = type->creator();
-        auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+        auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+        auto mapWrapper = polymorphicDispatcher->createObject();
         const auto& map = mapWrapper.template staticCast<Collection>();
 
         auto it = type->params.begin();
-        Type* keyType = *it ++;
+        const Type* keyType = *it ++;
         if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
           throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserializeFieldsMap()]: Invalid bson map key. Key should be String");
         }
-        Type* valueType = *it;
 
+        const Type* valueType = *it;
         while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
           v_char8 valueTypeCode;
