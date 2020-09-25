@@ -70,6 +70,11 @@ public:
      */
     bool allowUnknownFields = true;
 
+    /**
+     * Enable type interpretations.
+     */
+    std::vector<std::string> enableInterpretations = {};
+
   };
 
 public:

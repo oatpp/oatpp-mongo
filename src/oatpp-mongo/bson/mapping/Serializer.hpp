@@ -78,6 +78,11 @@ public:
      */
     bool throwOnUnknownTypes = true;
 
+    /**
+     * Enable type interpretations.
+     */
+    std::vector<std::string> enableInterpretations = {};
+
   };
 public:
   typedef void (*SerializerMethod)(Serializer*,

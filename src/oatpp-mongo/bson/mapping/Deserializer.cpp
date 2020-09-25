@@ -453,8 +453,15 @@ oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const ty
   if(method) {
     return (*method)(this, caret, type, bsonTypeCode);
   } else {
+
+    auto* interpretation = type->findInterpretation(m_config->enableInterpretations);
+    if(interpretation) {
+      return interpretation->fromInterpretation(deserialize(caret, interpretation->getInterpretationType(), bsonTypeCode));
+    }
+
     throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserialize()]: "
                              "Error. No deserialize method for type '" + std::string(type->classId.name) + "'");
+
   }
 }
 

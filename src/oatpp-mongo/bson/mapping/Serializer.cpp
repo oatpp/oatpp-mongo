@@ -276,8 +276,15 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
   if(method) {
     (*method)(this, stream, key, polymorph);
   } else {
-    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serialize()]: "
-                             "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
+
+    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enableInterpretations);
+    if(interpretation) {
+      serialize(stream, key, interpretation->toInterpretation(polymorph));
+    } else {
+      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serialize()]: "
+                               "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
+    }
+
   }
 }
 
