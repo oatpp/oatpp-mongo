@@ -42,9 +42,8 @@ namespace oatpp { namespace mongo { namespace bson { namespace mapping {
  */
 class Serializer {
 public:
-  typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::Type::Property Property;
-  typedef oatpp::data::mapping::type::Type::Properties Properties;
+  typedef oatpp::BaseObject::Property Property;
+  typedef oatpp::BaseObject::Properties Properties;
 public:
   /**
    * Serializer config.
@@ -78,6 +77,11 @@ public:
      * (String, Int8, Int16, Int32, Int64, Float32, Float64, Boolean, DTOs, List, Fields).
      */
     bool throwOnUnknownTypes = true;
+
+    /**
+     * Enable type interpretations.
+     */
+    std::vector<std::string> enableInterpretations = {};
 
   };
 public:
