@@ -60,7 +60,7 @@
 
 #include "oatpp-mongo/bson/Utils.hpp"
 
-#include "oatpp/network/client/SimpleTCPConnectionProvider.hpp"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace {
@@ -157,7 +157,7 @@ void testMsg() {
 
   oatpp::mongo::bson::mapping::ObjectMapper objectMapper;
 
-  auto connectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", 27017);
+  auto connectionProvider = oatpp::network::tcp::client::ConnectionProvider::createShared({"localhost", 27017});
   auto connection = connectionProvider->get();
 
   oatpp::mongo::driver::wire::Connection dbConnection(connection);
