@@ -268,6 +268,7 @@ private:
   }
 
   static oatpp::Void deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
+  static oatpp::Void deserializeDateTime(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
   static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);
 
   static oatpp::Void deserializeInlineDocs(Deserializer* deserializer, parser::Caret& caret, const Type* const type, v_char8 bsonTypeCode);

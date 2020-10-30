@@ -75,6 +75,8 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   setSerializerMethod(oatpp::mongo::bson::__class::ObjectId::CLASS_ID, &Serializer::serializeObjectId);
 
+  setSerializerMethod(oatpp::mongo::bson::__class::DateTime::CLASS_ID, &Serializer::serializeDateTime);
+
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
@@ -83,6 +85,25 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
     m_methods[id] = method;
   } else {
     throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
+  }
+}
+
+void Serializer::serializeDateTime(Serializer* serializer,
+                                   data::stream::ConsistentOutputStream* stream,
+                                   const data::share::StringKeyLabel& key,
+                                   const oatpp::Void& polymorph)
+{
+  (void) serializer;
+
+  if(!key) {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeDateTime()]: Error. The key can't be null.");
+  }
+
+  if(polymorph) {
+    bson::Utils::writeKey(stream, TypeCode::DATE_TIME, key);
+    bson::Utils::writeInt64(stream, *static_cast<v_int64*>(polymorph.get()));
+  } else {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
   }
 }
 

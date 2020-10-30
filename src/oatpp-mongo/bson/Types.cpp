@@ -32,6 +32,7 @@ namespace __class {
   const ClassId InlineDocument::CLASS_ID("oatpp::mongo::InlineDocument");
   const ClassId InlineArray::CLASS_ID("oatpp::mongo::InlineArray");
   const ClassId ObjectId::CLASS_ID("oatpp::mongo::ObjectId");
+  const ClassId DateTime::CLASS_ID("oatpp::mongo::DateTime");
 
 }
 
