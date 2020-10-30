@@ -187,6 +187,17 @@ namespace __class {
 
   };
 
+  class DateTime {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type *getType() {
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
 }
 
 /**
@@ -205,6 +216,11 @@ typedef oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __clas
  * ObjectId as oatpp primitive type.
  */
 typedef oatpp::data::mapping::type::Primitive<type::ObjectId, __class::ObjectId> ObjectId;
+
+/**
+ * DateTime is an ObjectWrapper over `v_int64` and __class::DateTime.
+ */
+typedef oatpp::data::mapping::type::Primitive<v_int64, __class::DateTime> DateTime;
 
 }}}
 

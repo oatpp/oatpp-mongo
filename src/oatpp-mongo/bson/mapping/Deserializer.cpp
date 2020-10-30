@@ -74,6 +74,8 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 
   setDeserializerMethod(oatpp::mongo::bson::__class::ObjectId::CLASS_ID, &Deserializer::deserializeObjectId);
 
+  setDeserializerMethod(oatpp::mongo::bson::__class::DateTime::CLASS_ID, &Deserializer::deserializeDateTime);
+
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
@@ -197,6 +199,29 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer,
 
   }
 
+}
+
+oatpp::Void Deserializer::deserializeDateTime(Deserializer* deserializer,
+                                              parser::Caret& caret,
+                                              const Type* const type,
+                                              v_char8 bsonTypeCode)
+{
+  (void) deserializer;
+  (void) type;
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return oatpp::Void(DateTime::Class::getType());
+
+    case TypeCode::DATE_TIME:
+      return DateTime(Utils::readInt64(caret));
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeDateTime()]: Error. Type-code doesn't match DateTime.");
+      return oatpp::Void(DateTime::Class::getType());
+
+  }
 }
 
 oatpp::Void Deserializer::deserializeString(Deserializer* deserializer,

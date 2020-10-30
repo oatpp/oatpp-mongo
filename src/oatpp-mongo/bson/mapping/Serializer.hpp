@@ -104,7 +104,6 @@ private:
     }
 
     if(polymorph) {
-      auto str = static_cast<oatpp::base::StrBuffer *>(polymorph.get());
       bson::Utils::writePrimitive(stream, key, * static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
       bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
@@ -180,6 +179,11 @@ private:
     }
 
   }
+
+  static void serializeDateTime(Serializer* serializer,
+                                data::stream::ConsistentOutputStream* stream,
+                                const data::share::StringKeyLabel& key,
+                                const oatpp::Void& polymorph);
 
   static void serializeString(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
