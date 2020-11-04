@@ -34,7 +34,8 @@ Utils::BO_TYPE Utils::FLOAT_BO = detectFloatBO();
 
 Utils::BO_TYPE Utils::detectIntBO() {
   BO_TYPE result = BO_TYPE::UNKNOWN;
-  BO_CHECK check {.i64 = 255};
+  BO_CHECK check;
+  check.i64 = 255;
   if(check.bytes[0] == 255) {
     result = BO_TYPE::LITTLE;
   } else if(check.bytes[7] == 255) {
@@ -45,7 +46,8 @@ Utils::BO_TYPE Utils::detectIntBO() {
 
 Utils::BO_TYPE Utils::detectFloatBO() {
   BO_TYPE result = BO_TYPE::UNKNOWN;
-  BO_CHECK check {.f64 = 2.0};
+  BO_CHECK check;
+  check.f64 = 2.0;
   if(check.bytes[0] > 0) {
     result = BO_TYPE::NETWORK;
   } else if(check.bytes[7] > 0) {
