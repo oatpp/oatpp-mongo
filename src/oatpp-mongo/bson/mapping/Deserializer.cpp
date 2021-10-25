@@ -246,7 +246,7 @@ oatpp::Void Deserializer::deserializeString(Deserializer* deserializer,
       }
       auto label = caret.putLabel();
       caret.inc(size);
-      return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize() - 1), String::Class::getType());
+      return oatpp::String(label.getData(), label.getSize() - 1);
 
     }
 
@@ -285,10 +285,10 @@ oatpp::Void Deserializer::deserializeInlineDocs(Deserializer* deserializer,
       label.end();
 
       if(bsonTypeCode == DOCUMENT_ARRAY) {
-        return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineArray::Class::getType());
+        return oatpp::Void(std::make_shared<std::string>(label.getData(), label.getSize()), InlineArray::Class::getType());
       }
 
-      return oatpp::Void(base::StrBuffer::createShared(label.getData(), label.getSize()), InlineDocument::Class::getType());
+      return oatpp::Void(std::make_shared<std::string>(label.getData(), label.getSize()), InlineDocument::Class::getType());
 
     }
 
@@ -321,7 +321,7 @@ oatpp::Void Deserializer::deserializeObjectId(Deserializer* deserializer,
       auto label = caret.putLabel();
       caret.inc(12);
 
-      return oatpp::Void(std::make_shared<type::ObjectId>(label.getData()), ObjectId::Class::getType());
+      return oatpp::Void(std::make_shared<type::ObjectId>((p_char8)label.getData()), ObjectId::Class::getType());
 
     }
 
@@ -343,7 +343,7 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer,
     const Type *const fieldType = guessType(bsonTypeCode);
     if (fieldType != nullptr) {
       auto fieldValue = deserializer->deserialize(caret, fieldType, bsonTypeCode);
-      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.getValueType());
       return oatpp::Void(anyHandle, Any::Class::getType());
     }
 
@@ -424,7 +424,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
           return nullptr;
         }
 
-        auto fieldIterator = fieldsMap.find(key->std_str());
+        auto fieldIterator = fieldsMap.find(*key);
         if(fieldIterator != fieldsMap.end()){
 
           auto field = fieldIterator->second;

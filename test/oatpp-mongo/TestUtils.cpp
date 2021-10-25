@@ -46,7 +46,7 @@ namespace oatpp { namespace mongo { namespace test {
 void TestUtils::writeBinary(const void *voiddata, v_int32 length, const char* tag) {
   p_char8 data = (p_char8) voiddata;
 
-  auto lenStrLen = oatpp::utils::conversion::int32ToStr(length)->getSize();
+  auto lenStrLen = oatpp::utils::conversion::int32ToStr(length)->size();
 
   oatpp::data::stream::BufferOutputStream stream;
   stream << "\nbegin:----------------------------------------" << tag << "\n";
@@ -57,7 +57,7 @@ void TestUtils::writeBinary(const void *voiddata, v_int32 length, const char* ta
 
     auto indexStr = oatpp::utils::conversion::int32ToStr(i);
 
-    for (int i = 0; i < lenStrLen - indexStr->getSize(); i++) {
+    for (int i = 0; i < lenStrLen - indexStr->size(); i++) {
       stream.writeCharSimple(' ');
     }
 
@@ -67,10 +67,10 @@ void TestUtils::writeBinary(const void *voiddata, v_int32 length, const char* ta
     stream << str;
 
     if (a >= ' ' && a <= 'z') {
-      for (int i = 0; i < 5 - str->getSize(); i++) {
+      for (int i = 0; i < 5 - str->size(); i++) {
         stream.writeCharSimple(' ');
       }
-      stream << "'" << oatpp::String((const char *) (&data[i]), 1, false) << "'";
+      stream << "'" << oatpp::String((const char *) (&data[i]), 1) << "'";
     }
     stream << "\n";
   }
@@ -80,7 +80,7 @@ void TestUtils::writeBinary(const void *voiddata, v_int32 length, const char* ta
 }
 
 void TestUtils::writeBinary(const oatpp::String &data, const char* tag) {
-  writeBinary(data->getData(), data->getSize(), tag);
+  writeBinary(data->data(), data->size(), tag);
 }
 
 void TestUtils::hardcodeBinary(const oatpp::String& data, const oatpp::String& varname) {
@@ -88,17 +88,17 @@ void TestUtils::hardcodeBinary(const oatpp::String& data, const oatpp::String& v
   oatpp::data::stream::BufferOutputStream stream;
   stream << "std::vector<v_uint8> " << varname << " = {";
 
-  for(v_int32 i = 0; i < data->getSize(); i++) {
-    v_char8 a = data->getData()[i];
+  for(v_int32 i = 0; i < data->size(); i++) {
+    v_char8 a = data->data()[i];
     stream << (v_uint8) a;
-    if(i < data->getSize() - 1) {
+    if(i < data->size() - 1) {
       stream << ", ";
     }
   }
 
   stream << "}";
 
-  OATPP_LOGD("HARDCODE", "%s", stream.toString()->getData());
+  OATPP_LOGD("HARDCODE", "%s", stream.toString()->data());
 
 }
 
@@ -110,7 +110,7 @@ oatpp::String TestUtils::writeJsonToBsonCXX(const oatpp::Void& polymorph) {
   bsoncxx::document::value bsonObj = bsoncxx::from_json(jsonStr->c_str());
   auto view = bsonObj.view();
 
-  return oatpp::String((const char*)view.data(), view.length(), true);
+  return oatpp::String((const char*)view.data(), view.length());
 
 }
 

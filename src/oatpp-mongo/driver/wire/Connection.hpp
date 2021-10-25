@@ -27,6 +27,7 @@
 #define oatpp_mongo_driver_wire_Connection_hpp
 
 #include "./Message.hpp"
+#include "oatpp/core/provider/Provider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
@@ -36,10 +37,10 @@ namespace oatpp { namespace mongo { namespace driver { namespace wire {
  */
 class Connection {
 private:
-  std::shared_ptr<data::stream::IOStream> m_connection;
+  provider::ResourceHandle<data::stream::IOStream> m_connection;
 public:
 
-  Connection(const std::shared_ptr<data::stream::IOStream>& connection);
+  Connection(const provider::ResourceHandle<data::stream::IOStream>& connection);
 
   v_io_size write(const Message& message);
   v_io_size read(Message& message);

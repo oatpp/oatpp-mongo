@@ -123,9 +123,9 @@ void Serializer::serializeString(Serializer* serializer,
 
     bson::Utils::writeKey(stream, TypeCode::STRING, key);
 
-    auto str = static_cast<oatpp::base::StrBuffer *>(polymorph.get());
-    bson::Utils::writeInt32(stream, str->getSize() + 1);
-    stream->writeSimple(str->getData(), str->getSize());
+    auto str = static_cast<std::string*>(polymorph.get());
+    bson::Utils::writeInt32(stream, str->size() + 1);
+    stream->writeSimple(str->data(), str->size());
     stream->writeCharSimple(0);
 
   } else {
@@ -145,20 +145,20 @@ void Serializer::serializeInlineDocs(Serializer* serializer,
 
   if(polymorph) {
 
-    auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
-    if(str->getSize() < 5) {
+    auto str = static_cast<std::string*>(polymorph.get());
+    if(str->size() < 5) {
       throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeInlineDocs()]: Error. Invalid inline object size.");
     }
 
-    oatpp::parser::Caret caret(str->getData(), str->getSize());
+    oatpp::parser::Caret caret(str->data(), str->size());
     v_int32 inlineSize = bson::Utils::readInt32(caret);
 
-    if(inlineSize != str->getSize()) {
+    if(inlineSize != str->size()) {
       throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeInlineDocs()]: Error. Invalid inline object.");
     }
 
     bson::Utils::writeKey(stream, typeCode, key);
-    stream->writeSimple(str->getData(), str->getSize());
+    stream->writeSimple(str->data(), str->size());
 
   } else if(key) {
     bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
@@ -232,7 +232,7 @@ void Serializer::serializeEnum(Serializer* serializer,
 {
 
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
-    polymorph.valueType->polymorphicDispatcher
+    polymorph.getValueType()->polymorphicDispatcher
   );
 
   data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
@@ -263,7 +263,7 @@ void Serializer::serializeObject(Serializer* serializer,
 
     data::stream::BufferOutputStream innerStream;
 
-    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(polymorph.valueType->polymorphicDispatcher);
+    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(polymorph.getValueType()->polymorphicDispatcher);
     auto fields = dispatcher->getProperties()->getList();
     auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
 
@@ -292,18 +292,18 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                            const data::share::StringKeyLabel& key,
                            const oatpp::Void& polymorph)
 {
-  auto id = polymorph.valueType->classId.id;
+  auto id = polymorph.getValueType()->classId.id;
   auto& method = m_methods[id];
   if(method) {
     (*method)(this, stream, key, polymorph);
   } else {
 
-    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enableInterpretations);
+    auto* interpretation = polymorph.getValueType()->findInterpretation(m_config->enableInterpretations);
     if(interpretation) {
       serialize(stream, key, interpretation->toInterpretation(polymorph));
     } else {
       throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serialize()]: "
-                               "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
+                               "Error. No serialize method for type '" + std::string(polymorph.getValueType()->classId.name) + "'");
     }
 
   }

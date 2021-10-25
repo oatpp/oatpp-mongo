@@ -30,26 +30,26 @@
 
 namespace oatpp { namespace mongo { namespace driver { namespace wire {
 
-Connection::Connection(const std::shared_ptr<data::stream::IOStream>& connection)
+Connection::Connection(const provider::ResourceHandle<data::stream::IOStream>& connection)
   : m_connection(connection)
 {}
 
 v_io_size Connection::write(const Message& message) {
 
-  if(message.header.messageLength != 16 + message.data->getSize()) {
+  if(message.header.messageLength != 16 + message.data->size()) {
     throw std::runtime_error("[oatpp::mongo::driver::wire::Connection::write()]: Error. Invalid message header.");
   }
 
   data::stream::BufferOutputStream stream(16);
   message.header.writeToStream(&stream);
 
-  auto res1 = m_connection->writeExactSizeDataSimple(stream.getData(), stream.getCurrentPosition());
+  auto res1 = m_connection.object->writeExactSizeDataSimple(stream.getData(), stream.getCurrentPosition());
 
   if(res1 < stream.getCurrentPosition()) {
     return res1;
   }
 
-  auto res2 = m_connection->writeExactSizeDataSimple(message.data->getData(), message.data->getSize());
+  auto res2 = m_connection.object->writeExactSizeDataSimple(message.data->data(), message.data->size());
   if(res2 < 0) {
     return res2;
   }
@@ -62,16 +62,16 @@ v_io_size Connection::read(Message& message) {
 
   const v_buff_size headerSize = 16;
   v_char8 headerDataBuffer[headerSize];
-  auto res1 = m_connection->readExactSizeDataSimple(headerDataBuffer, headerSize);
+  auto res1 = m_connection.object->readExactSizeDataSimple(headerDataBuffer, headerSize);
   if(res1 != headerSize) {
     return res1;
   }
 
-  parser::Caret caret(headerDataBuffer, headerSize);
+  parser::Caret caret((const char*)headerDataBuffer, headerSize);
   message.header.readFromCaret(caret);
 
   oatpp::String dataBuffer(message.header.messageLength - headerSize);
-  auto res2 = m_connection->readExactSizeDataSimple(dataBuffer->getData(), dataBuffer->getSize());
+  auto res2 = m_connection.object->readExactSizeDataSimple((void*)dataBuffer->data(), dataBuffer->size());
 
   if(res2 < 0) {
     return res2;

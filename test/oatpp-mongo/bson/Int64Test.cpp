@@ -265,7 +265,7 @@ void Int64Test::onRun() {
       0                                                         // doc end
     };
 
-    oatpp::String bcxx = oatpp::String((const char*)bcxxData.data(), bcxxData.size(), true);
+    oatpp::String bcxx((const char*)bcxxData.data(), bcxxData.size());
 
     if (bson != bcxx) {
       TestUtils::writeBinary(bson, "oatpp-mongo::bson (unsigned)");

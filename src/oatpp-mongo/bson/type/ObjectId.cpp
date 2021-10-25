@@ -87,7 +87,7 @@ v_uint32 ObjectId::getTimestamp() const {
 oatpp::String ObjectId::toString() const {
   static const v_char8 alphabet[16] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
   oatpp::String result(DATA_SIZE * 2);
-  p_char8 rdata = result->getData();
+  p_char8 rdata = (p_char8) result->data();
   for(v_buff_size i = 0; i < DATA_SIZE; i ++) {
     auto a = m_data[i];
     v_char8 b1 = 0x0F & (a >> 4);

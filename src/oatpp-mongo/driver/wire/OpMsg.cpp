@@ -117,9 +117,9 @@ void DocumentSequenceSection::writeToStream(data::stream::ConsistentOutputStream
 
   stream->writeCharSimple(TYPE_DOCUMENT_SEQUENCE);
 
-  v_int32 size = 4 + identifier->getSize() + 1;
+  v_int32 size = 4 + identifier->size() + 1;
   for(auto& doc : documents) {
-    size += doc->getSize();
+    size += doc->size();
   }
   bson::Utils::writeInt32(stream, size);
 
@@ -150,7 +150,7 @@ bool DocumentSequenceSection::readFromCaret(parser::Caret& caret) {
       return false;
     }
 
-    progress += identifier->getSize() + 1;
+    progress += identifier->size() + 1;
 
     while(caret.canContinue() && progress < overallSize) {
 
@@ -164,7 +164,7 @@ bool DocumentSequenceSection::readFromCaret(parser::Caret& caret) {
       oatpp::String document = label.toString();
       documents.push_back(document);
 
-      progress += document->getSize();
+      progress += document->size();
 
     }
 

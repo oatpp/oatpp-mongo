@@ -52,7 +52,7 @@ wire::Message Find::toMessage(ObjectMapper* commandObjectMapper) {
 
   auto data = payloadStream.toString();
 
-  return wire::Message(16 + (v_int32) data->getSize(), wire::OpMsg::OP_CODE, data);
+  return wire::Message(16 + (v_int32) data->size(), wire::OpMsg::OP_CODE, data);
 
 }
 

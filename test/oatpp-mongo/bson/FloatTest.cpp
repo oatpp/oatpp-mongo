@@ -158,7 +158,7 @@ DTO_INIT(F64_Sub4, DTO)
 
 bool readValues(const oatpp::String &binary, v_float64 &f1, v_float64 &f2, v_float64 &f4) {
 
-  if (binary->getSize() == 45) {
+  if (binary->size() == 45) {
 
     oatpp::parser::Caret caret(binary);
 

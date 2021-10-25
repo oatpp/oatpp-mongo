@@ -179,7 +179,7 @@ private:
         }
 
         caret.inc(innerCaret.getPosition());
-        return oatpp::Void(list.getPtr(), list.valueType);
+        return oatpp::Void(list.getPtr(), list.getValueType());
 
       }
 
@@ -256,7 +256,7 @@ private:
         }
 
         caret.inc(innerCaret.getPosition());
-        return oatpp::Void(map.getPtr(), map.valueType);
+        return oatpp::Void(map.getPtr(), map.getValueType());
 
       }
 

@@ -126,7 +126,7 @@ v_int32 Utils::readInt32(parser::Caret& caret, BO_TYPE valueBO) {
       break;
 
     default: {
-      p_char8 data = caret.getCurrData();
+      auto data = caret.getCurrData();
       result = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
     }
 
@@ -177,7 +177,7 @@ v_int64 Utils::readInt64(parser::Caret& caret, BO_TYPE valueBO) {
       break;
 
     default: {
-      p_char8 data = caret.getCurrData();
+      p_char8 data = (p_char8) caret.getCurrData();
       result = ((v_int64) data[0]      ) | ((v_int64) data[1] <<  8) | ((v_int64) data[2] << 16) | ((v_int64) data[3] << 24) |
                ((v_int64) data[4] << 32) | ((v_int64) data[5] << 40) | ((v_int64) data[6] << 48) | ((v_int64) data[7] << 56);
     }
@@ -229,7 +229,7 @@ v_uint64 Utils::readUInt64(parser::Caret& caret, BO_TYPE valueBO) {
       break;
 
     default: {
-      p_char8 data = caret.getCurrData();
+      p_char8 data = (p_char8) caret.getCurrData();
       result = ((v_uint64) data[0]      ) | ((v_uint64) data[1] <<  8) | ((v_uint64) data[2] << 16) | ((v_uint64) data[3] << 24) |
                ((v_uint64) data[4] << 32) | ((v_uint64) data[5] << 40) | ((v_uint64) data[6] << 48) | ((v_uint64) data[7] << 56);
     }
