@@ -110,76 +110,6 @@ private:
     }
   }
 
-  template<class Collection>
-  static void serializeArray(Serializer* serializer,
-                             data::stream::ConsistentOutputStream* stream,
-                             const data::share::StringKeyLabel& key,
-                             const oatpp::Void& polymorph)
-  {
-
-    if(polymorph) {
-
-      bson::Utils::writeKey(stream, TypeCode::DOCUMENT_ARRAY, key);
-
-      data::stream::BufferOutputStream innerStream;
-
-      const auto& list = polymorph.staticCast<Collection>();
-      v_int32 index = 0;
-
-      for(auto& value : *list) {
-        if (value || serializer->getConfig()->includeNullFields) {
-          serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), value);
-          index ++;
-        }
-      }
-
-      bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
-      stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
-      stream->writeCharSimple(0);
-
-    } else if(key) {
-      bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
-    } else {
-      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeList()]: Error. null object with null key.");
-    }
-
-  }
-
-  template<class Collection>
-  static void serializeKeyValue(Serializer* serializer,
-                                data::stream::ConsistentOutputStream* stream,
-                                const data::share::StringKeyLabel& key,
-                                const oatpp::Void& polymorph)
-  {
-
-    if(polymorph) {
-
-      bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
-
-      data::stream::BufferOutputStream innerStream;
-
-      const auto& map = polymorph.staticCast<Collection>();
-
-      for(auto& pair : *map) {
-        const auto& value = pair.second;
-        if(value || serializer->getConfig()->includeNullFields) {
-          const auto& key = pair.first;
-          serializer->serialize(&innerStream, key, value);
-        }
-      }
-
-      bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
-      stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
-      stream->writeCharSimple(0);
-
-    } else if(key) {
-      bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
-    } else {
-      throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeKeyValue()]: Error. null object with null key.");
-    }
-
-  }
-
   static void serializeDateTime(Serializer* serializer,
                                 data::stream::ConsistentOutputStream* stream,
                                 const data::share::StringKeyLabel& key,
@@ -220,6 +150,16 @@ private:
                             data::stream::ConsistentOutputStream* stream,
                             const data::share::StringKeyLabel& key,
                             const oatpp::Void& polymorph);
+
+  static void serializeCollection(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const data::share::StringKeyLabel& key,
+                                  const oatpp::Void& polymorph);
+
+  static void serializeMap(Serializer* serializer,
+                           data::stream::ConsistentOutputStream* stream,
+                           const data::share::StringKeyLabel& key,
+                           const oatpp::Void& polymorph);
 
   static void serializeObject(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,

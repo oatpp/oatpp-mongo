@@ -58,12 +58,12 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   //----------------
   // Collections
 
-  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeArray<oatpp::AbstractVector>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeArray<oatpp::AbstractList>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Deserializer::deserializeArray<oatpp::AbstractUnorderedSet>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeCollection);
+  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeCollection);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Deserializer::deserializeCollection);
 
-  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractFields>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractUnorderedFields>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeMap);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeMap);
 
 
   //----------------
@@ -80,11 +80,10 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
   const v_uint32 id = classId.id;
-  if(id < m_methods.size()) {
-    m_methods[id] = method;
-  } else {
-    throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::setDeserializerMethod()]: Error. Unknown classId");
+  if(id >= m_methods.size()) {
+    m_methods.resize(id + 1, nullptr);
   }
+  m_methods[id] = method;
 }
 
 void Deserializer::skipCString(parser::Caret& caret) {
@@ -386,6 +385,167 @@ oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer,
 
 }
 
+oatpp::Void Deserializer::deserializeCollection(Deserializer* deserializer,
+                                                parser::Caret& caret,
+                                                const Type* const type,
+                                                v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return oatpp::Void(type);
+
+    case TypeCode::DOCUMENT_ROOT:
+    case TypeCode::DOCUMENT_EMBEDDED:
+    case TypeCode::DOCUMENT_ARRAY:
+    {
+
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 4) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeCollection()]: Error. Invalid document size.");
+        return nullptr;
+      }
+
+      parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
+
+      auto dispatcher = static_cast<const data::mapping::type::__class::Collection::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto collection = dispatcher->createObject();
+
+      const Type* itemType = dispatcher->getItemType();
+      v_int32 expectedIndex = 0;
+      while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
+
+        v_char8 valueTypeCode;
+        auto key = Utils::readKey(innerCaret, valueTypeCode);
+        if(innerCaret.hasError()){
+          caret.inc(innerCaret.getPosition());
+          caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+          return nullptr;
+        }
+
+        bool success;
+        v_int32 keyIntValue = utils::conversion::strToInt32(key, success);
+        if(!success || keyIntValue != expectedIndex) {
+          caret.inc(innerCaret.getPosition());
+          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeCollection()]: Error. Array invalid index value. Looks like it's not an array.");
+          return nullptr;
+        }
+
+        auto item = deserializer->deserialize(innerCaret, itemType, valueTypeCode);
+        if(innerCaret.hasError()){
+          caret.inc(innerCaret.getPosition());
+          caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+          return nullptr;
+        }
+
+        dispatcher->addItem(collection, item);
+        ++ expectedIndex;
+
+      }
+
+      if(!innerCaret.canContinueAtChar(0, 1)){
+        caret.inc(innerCaret.getPosition());
+        if(innerCaret.hasError()) {
+          caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+        } else {
+          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeCollection()]: Error. '\\0' - expected");
+        }
+        return nullptr;
+      }
+
+      if(innerCaret.getPosition() != innerCaret.getDataSize()) {
+        caret.inc(innerCaret.getPosition());
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeCollection()]: Error. Document parsing failed.");
+      }
+
+      caret.inc(innerCaret.getPosition());
+      return collection;
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeCollection()]: Error. Invalid type code.");
+      return nullptr;
+
+  }
+
+}
+
+oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer,
+                                         parser::Caret& caret,
+                                         const Type* const type,
+                                         v_char8 bsonTypeCode)
+{
+
+  switch(bsonTypeCode) {
+
+    case TypeCode::NULL_VALUE:
+      return oatpp::Void(type);
+
+    case TypeCode::DOCUMENT_ROOT:
+    case TypeCode::DOCUMENT_EMBEDDED:
+    case TypeCode::DOCUMENT_ARRAY:
+    {
+
+      v_int32 docSize = Utils::readInt32(caret);
+      if (docSize - 4 + caret.getPosition() > caret.getDataSize() || docSize < 4) {
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeMap()]: Error. Invalid document size.");
+        return nullptr;
+      }
+
+      parser::Caret innerCaret(caret.getCurrData(), docSize - 4);
+
+      auto dispatcher = static_cast<const data::mapping::type::__class::Map::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto map = dispatcher->createObject();
+
+      const Type* keyType = dispatcher->getKeyType();
+      if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
+        throw std::runtime_error("[oatpp::mongo::bson::mapping::Deserializer::deserializeMap()]: Invalid bson map key. Key should be String");
+      }
+
+      const Type* valueType = dispatcher->getValueType();
+      while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
+
+        v_char8 valueTypeCode;
+        auto key = Utils::readKey(innerCaret, valueTypeCode);
+        if(innerCaret.hasError()){
+          caret.inc(innerCaret.getPosition());
+          caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+          return nullptr;
+        }
+
+        dispatcher->addItem(map, key, deserializer->deserialize(innerCaret, valueType, valueTypeCode));
+
+      }
+
+      if(!innerCaret.canContinueAtChar(0, 1)){
+        caret.inc(innerCaret.getPosition());
+        if(innerCaret.hasError()) {
+          caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+        } else {
+          caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeMap()]: Error. '\\0' - expected");
+        }
+        return nullptr;
+      }
+
+      if(innerCaret.getPosition() != innerCaret.getDataSize()) {
+        caret.inc(innerCaret.getPosition());
+        caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeMap()]: Error. Document parsing failed.");
+      }
+
+      caret.inc(innerCaret.getPosition());
+      return oatpp::Void(map.getPtr(), map.getValueType());
+
+    }
+
+    default:
+      caret.setError("[oatpp::mongo::bson::mapping::Deserializer::deserializeMap()]: Error. Invalid type code.");
+      return nullptr;
+  }
+
+}
+
 oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
                                             parser::Caret& caret,
                                             const Type* const type,
@@ -414,6 +574,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
       auto object = dispatcher->createObject();
       const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
+      std::vector<PolymorphData> polymorphs;
       while(innerCaret.canContinue() && innerCaret.getPosition() < innerCaret.getDataSize() - 1) {
 
         v_char8 valueType;
@@ -428,7 +589,22 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
         if(fieldIterator != fieldsMap.end()){
 
           auto field = fieldIterator->second;
-          field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(innerCaret, field->type, valueType));
+          if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
+            auto label = innerCaret.putLabel();
+            skipElement(innerCaret, valueType);
+            if(innerCaret.hasError()){
+              caret.inc(innerCaret.getPosition());
+              caret.setError(innerCaret.getErrorMessage(), innerCaret.getErrorCode());
+              return nullptr;
+            }
+            PolymorphData polymorphData;
+            polymorphData.field = field;
+            polymorphData.unparsedData = label.toString();
+            polymorphData.valueType = valueType;
+            polymorphs.push_back(polymorphData); // store polymorphs for later processing.
+          } else {
+            field->set(static_cast<oatpp::BaseObject *>(object.get()),deserializer->deserialize(innerCaret, field->type, valueType));
+          }
 
         } else if (deserializer->getConfig()->allowUnknownFields) {
           skipElement(innerCaret, valueType);
@@ -461,6 +637,15 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
       }
 
       caret.inc(innerCaret.getPosition());
+
+      for(auto& p : polymorphs) {
+        parser::Caret polyCaret(p.unparsedData);
+        auto selectedType = p.field->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
+        auto value = deserializer->deserialize(polyCaret, selectedType, p.valueType);
+        oatpp::Any any(value);
+        p.field->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.field->type));
+      }
+
       return object;
 
     }

@@ -60,12 +60,12 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   //----------------
   // Collections
 
-  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractVector>);
-  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractList>);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Serializer::serializeArray<oatpp::AbstractUnorderedSet>);
+  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeCollection);
+  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeCollection);
+  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Serializer::serializeCollection);
 
-  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractFields>);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractUnorderedFields>);
+  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeMap);
+  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeMap);
 
   //----------------
   // Other
@@ -81,11 +81,10 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
   const v_uint32 id = classId.id;
-  if(id < m_methods.size()) {
-    m_methods[id] = method;
-  } else {
-    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
+  if(id >= m_methods.size()) {
+    m_methods.resize(id + 1, nullptr);
   }
+  m_methods[id] = method;
 }
 
 void Serializer::serializeDateTime(Serializer* serializer,
@@ -251,6 +250,76 @@ void Serializer::serializeEnum(Serializer* serializer,
 
 }
 
+void Serializer::serializeCollection(Serializer* serializer,
+                                     data::stream::ConsistentOutputStream* stream,
+                                     const data::share::StringKeyLabel& key,
+                                     const oatpp::Void& polymorph)
+{
+
+  if(polymorph) {
+
+    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_ARRAY, key);
+    data::stream::BufferOutputStream innerStream;
+
+    auto dispatcher = static_cast<const data::mapping::type::__class::Collection::PolymorphicDispatcher*>(polymorph.getValueType()->polymorphicDispatcher);
+    v_int32 index = 0;
+
+    auto iterator = dispatcher->beginIteration(polymorph);
+    while (!iterator->finished()) {
+      const auto& value = iterator->get();
+      if (value || serializer->getConfig()->includeNullFields) {
+        serializer->serialize(&innerStream, utils::conversion::int32ToStr(index), value);
+        index ++;
+      }
+      iterator->next();
+    }
+
+    bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
+    stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
+    stream->writeCharSimple(0);
+
+  } else if(key) {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+  } else {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeCollection()]: Error. null object with null key.");
+  }
+
+}
+
+void Serializer::serializeMap(Serializer* serializer,
+                              data::stream::ConsistentOutputStream* stream,
+                              const data::share::StringKeyLabel& key,
+                              const oatpp::Void& polymorph)
+{
+  if(polymorph) {
+
+    bson::Utils::writeKey(stream, TypeCode::DOCUMENT_EMBEDDED, key);
+    data::stream::BufferOutputStream innerStream;
+
+    auto dispatcher = static_cast<const data::mapping::type::__class::Map::PolymorphicDispatcher*>(polymorph.getValueType()->polymorphicDispatcher);
+
+    auto iterator = dispatcher->beginIteration(polymorph);
+    while (!iterator->finished()) {
+      const auto& value = iterator->getValue();
+      if(value || serializer->getConfig()->includeNullFields) {
+        const auto& key = iterator->getKey().cast<oatpp::String>();
+        serializer->serialize(&innerStream, key, value);
+      }
+      iterator->next();
+    }
+
+    bson::Utils::writeInt32(stream, innerStream.getCurrentPosition() + 5);
+    stream->writeSimple(innerStream.getData(), innerStream.getCurrentPosition());
+    stream->writeCharSimple(0);
+
+  } else if(key) {
+    bson::Utils::writeKey(stream, TypeCode::NULL_VALUE, key);
+  } else {
+    throw std::runtime_error("[oatpp::mongo::bson::mapping::Serializer::serializeKeyValue()]: Error. null object with null key.");
+  }
+
+}
+
 void Serializer::serializeObject(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::share::StringKeyLabel& key,
@@ -269,7 +338,14 @@ void Serializer::serializeObject(Serializer* serializer,
 
     for (auto const &field : fields) {
 
-      auto value = field->get(object);
+      oatpp::Void value;
+      if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
+        const auto& any = field->get(object).cast<oatpp::Any>();
+        value = any.retrieve(field->info.typeSelector->selectType(object));
+      } else {
+        value = field->get(object);
+      }
+
       if (value || serializer->getConfig()->includeNullFields) {
         serializer->serialize(&innerStream, field->name, value);
       }

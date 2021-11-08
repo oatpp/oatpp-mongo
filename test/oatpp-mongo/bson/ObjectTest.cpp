@@ -165,6 +165,21 @@ class Sub4 : public oatpp::DTO {
 
 };
 
+class PolymorphicDto : public oatpp::DTO {
+
+  DTO_INIT(PolymorphicDto, DTO)
+
+  DTO_FIELD(String, type);
+  DTO_FIELD(Any, polymorph);
+
+  DTO_FIELD_TYPE_SELECTOR(polymorph) {
+    if(type == "str") return String::Class::getType();
+    if(type == "int") return Int32::Class::getType();
+    return Void::Class::getType();
+  }
+
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 }
@@ -240,6 +255,38 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(!sub->f3.getPtr() && !obj->f3.getPtr());
 
     OATPP_LOGI(TAG, "sub4 - OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test Polymorphic field...");
+
+    oatpp::mongo::bson::mapping::ObjectMapper mapper;
+
+    auto dto = PolymorphicDto::createShared();
+
+    dto->type = "str";
+    dto->polymorph = oatpp::String("Hello World!");
+
+    OATPP_ASSERT(dto->polymorph.getValueType() == oatpp::Any::Class::getType())
+
+    auto bson = mapper.writeToString(dto);
+    OATPP_LOGD(TAG, "bson-size=%d", bson->size())
+
+    auto dtoClone = mapper.readFromString<oatpp::Object<PolymorphicDto>>(bson);
+
+    auto bsonClone = mapper.writeToString(dtoClone);
+    OATPP_LOGD(TAG, "bson-size=%d", bsonClone->size())
+
+    OATPP_ASSERT(bson == bsonClone)
+
+    OATPP_ASSERT(dtoClone->polymorph)
+    OATPP_ASSERT(dtoClone->polymorph.getValueType() == oatpp::Any::Class::getType())
+
+    auto polymorphClone = dtoClone->polymorph.retrieve<oatpp::String>();
+
+    OATPP_ASSERT(polymorphClone == "Hello World!")
+
+    OATPP_LOGI(TAG, "OK");
   }
 
 }
